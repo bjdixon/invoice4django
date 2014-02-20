@@ -99,6 +99,14 @@ class NewVisitorTest(unittest.TestCase):
 
 		# After hitting enter he notices the page updates showing the entered values
 		# and new inputs for another line item
+		table = self.browser.find_element_by_id('invoice_table')
+		rows = table.find_elements_by_tag_name('tr')
+		self.assertTrue(
+			any(row.text == 'Item #1' for row in rows),
+			"Line item did not appear in table"
+		)
+
+		# ALSO NEED TO CHECK THAT PAYEE, NAME, ADDRESS, TAX STUFF IS DISPLAYED!
 
 		# he notices that he can add more line items and delete previously added
 		# line items
