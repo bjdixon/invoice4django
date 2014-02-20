@@ -27,6 +27,7 @@ class NewVisitorTest(unittest.TestCase):
 			invoice_number_input.get_attribute('placeholder'),
 			'Enter the invoice number'
 		)
+		invoice_number_input.send_keys('1234')
 
 		# he is invited to enter a payee and their address
 		invoiced_payee_input = self.browser.find_element_by_id('invoiced_payee_input')
@@ -71,7 +72,33 @@ class NewVisitorTest(unittest.TestCase):
 		tax_rate_input.send_keys('25')
 
 		# he is invited to add a line item, description, price and quantity
+		line_item_input = self.browser.find_element_by_id('line_item_input')
+		line_item_description_input = self.browser.find_element_by_id('line_item_description_input')
+		line_item_price_input = self.browser.find_element_by_id('line_item_price_input')
+		line_item_quantity_input = self.browser.find_element_by_id('line_item_quantity_input')
+		self.assertEqual(
+			line_item_input.get_attribute('placeholder'),
+			'Enter a line item'
+		)
+		self.assertEqual(
+			line_item_description_input.get_attribute('placeholder'),
+			'Enter line item description'
+		)
+		self.assertEqual(
+			line_item_price_input.get_attribute('placeholder'),
+			'Enter price per item'
+		)
+		self.assertEqual(
+			line_item_quantity_input.get_attribute('placeholder'),
+			'Enter quantity'
+		)
+		line_item_input.send_keys('Item #1')
+		line_item_description_input.send_keys('Description of item #1')
+		line_item_price_input.send_keys('45.00')
+		line_item_quantity_input.send_keys('2\n')
 
+		# After hitting enter he notices the page updates showing the entered values
+		# and new inputs for another line item
 
 		# he notices that he can add more line items and delete previously added
 		# line items
