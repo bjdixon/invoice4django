@@ -22,40 +22,40 @@ class NewVisitorTest(unittest.TestCase):
 		self.assertIn('Invoices', header_text)
 
 		# he is invited to enter an invoice number
-		invoice_number_input = self.browser.find_element_by_id('invoice_number')
+		invoice_number_input = self.browser.find_element_by_id('invoice_number_input')
 		self.assertEqual(
 			invoice_number_input.get_attribute('placeholder'),
 			'Enter the invoice number'
 		)
 		invoice_number_input.send_keys('1234')
 
-		# he is invited to enter a payee and their address
-		invoiced_payee_input = self.browser.find_element_by_id('invoiced_payee_input')
-		invoiced_payee_address_input = self.browser.find_element_by_id('invoiced_payee_address_input')
+		# he is invited to enter a customer and their address
+		invoiced_customer_name_input = self.browser.find_element_by_id('invoiced_customer_name_input')
+		invoiced_customer_address_input = self.browser.find_element_by_id('invoiced_customer_address_input')
 		self.assertEqual(
-			invoiced_payee_input.get_attribute('placeholder'),
-			'Enter a payee'
+			invoiced_customer_name_input.get_attribute('placeholder'),
+			'Enter a customer'
 		)
 		self.assertEqual(
-			invoiced_payee_address_input.get_attribute('placeholder'),
-			'Enter payee address'
+			invoiced_customer_address_input.get_attribute('placeholder'),
+			'Enter customer address'
 		)
-		invoiced_payee_input.send_keys('Bob Buyer')
-		invoiced_payee_address_input.send_keys('123 anystreet, anytown')
+		invoiced_customer_name_input.send_keys('Bob Buyer')
+		invoiced_customer_address_input.send_keys('123 anystreet, anytown')
 
 		# he is invited to enter his own name and address
-		name_input = self.browser.find_element_by_id('name_input')
-		address_input = self.browser.find_element_by_id('address_input')
+		vendors_name_input = self.browser.find_element_by_id('vendors_name_input')
+		vendors_address_input = self.browser.find_element_by_id('vendors_address_input')
 		self.assertEqual(
-			name_input.get_attribute('placeholder'),
+			vendors_name_input.get_attribute('placeholder'),
 			'Enter your name'
 		)
 		self.assertEqual(
-			address_input.get_attribute('placeholder'),
+			vendors_address_input.get_attribute('placeholder'),
 			'Enter your address'
 		)
-		name_input.send_keys('my name')
-		address_input.send_keys('my address, my town')
+		vendors_name_input.send_keys('my name')
+		vendors_address_input.send_keys('my address, my town')
 
 		# he is invited to add a tax type and tax percentage
 		tax_type_input = self.browser.find_element_by_id('tax_type_input')
@@ -95,18 +95,23 @@ class NewVisitorTest(unittest.TestCase):
 		line_item_input.send_keys('Item #1')
 		line_item_description_input.send_keys('Description of item #1')
 		line_item_price_input.send_keys('45.00')
-		line_item_quantity_input.send_keys('2\n')
+		line_item_quantity_input.send_keys('2')
+		self.browser.find_element_by_tag_name('button').send_keys(Keys.ENTER)
 
 		# After hitting enter he notices the page updates showing the entered values
 		# and new inputs for another line item
 		table = self.browser.find_element_by_id('invoice_table')
 		rows = table.find_elements_by_tag_name('tr')
-		self.assertTrue(
-			any(row.text == 'Item #1' for row in rows),
-			"Line item did not appear in table"
-		)
+		self.assertIn('Invoice Number: 1234', [row.text for row in rows])
+		self.assertIn('Customer: Bob Buyer', [row.text for row in rows])
+		self.assertIn('Customer address: 123 anystreet, anytown', [row.text for row in rows])
+		self.assertIn('Vendors name: my name', [row.text for row in rows])
+		self.assertIn('Vendors address: my address, my town', [row.text for row in rows])
+		self.assertIn('Tax type: AST', [row.text for row in rows])
+		self.assertIn('Tax rate: 25', [row.text for row in rows])
 
 		# ALSO NEED TO CHECK THAT PAYEE, NAME, ADDRESS, TAX STUFF IS DISPLAYED!
+		# PAGE 63 SAVING USER INPUT
 
 		# he notices that he can add more line items and delete previously added
 		# line items
@@ -119,7 +124,7 @@ class NewVisitorTest(unittest.TestCase):
 		# he notices that he can click a button to save the invoice as a pdf 
 
 
-		# he notices that he can enter the payee's email address and send the 
+		# he notices that he can enter the customer's email address and send the 
 		# invoice directly to them.
 
 
