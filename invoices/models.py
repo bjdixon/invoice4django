@@ -10,4 +10,8 @@ class Invoice(models.Model):
 	tax_rate = models.TextField()
 
 class Line_item(object):
-	pass
+	line_item = models.TextField()
+	line_item_description = models.TextField()
+	line_item_price = models.TextField()
+	line_item_quantity = models.TextField()
+
