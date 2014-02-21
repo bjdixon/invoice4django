@@ -11,6 +11,11 @@ class NewVisitorTest(unittest.TestCase):
 	def tearDown(self):
 		self.browser.quit()
 
+	def check_for_row_in_invoice_table(self, row_text):
+		table = self.browser.find_element_by_id('invoice_table')
+		rows = table.find_elements_by_tag_name('tr')
+		self.assertIn(row_text, [row.text for row in rows])
+
 	def test_can_start_an_invoice_and_retrieve_it_later(self):
 		# Jolby has heard about a new invoice site. He goes
 		# to check out it's home page.
@@ -100,18 +105,18 @@ class NewVisitorTest(unittest.TestCase):
 
 		# After hitting enter he notices the page updates showing the entered values
 		# and new inputs for another line item
-		table = self.browser.find_element_by_id('invoice_table')
-		rows = table.find_elements_by_tag_name('tr')
-		self.assertIn('Invoice Number: 1234', [row.text for row in rows])
-		self.assertIn('Customer: Bob Buyer', [row.text for row in rows])
-		self.assertIn('Customer address: 123 anystreet, anytown', [row.text for row in rows])
-		self.assertIn('Vendors name: my name', [row.text for row in rows])
-		self.assertIn('Vendors address: my address, my town', [row.text for row in rows])
-		self.assertIn('Tax type: AST', [row.text for row in rows])
-		self.assertIn('Tax rate: 25', [row.text for row in rows])
+		self.check_for_row_in_invoice_table('Invoice Number: 1234')
+		self.check_for_row_in_invoice_table('Customer: Bob Buyer')
+		self.check_for_row_in_invoice_table('Customer address: 123 anystreet, anytown')
+		self.check_for_row_in_invoice_table('Vendors name: my name')
+		self.check_for_row_in_invoice_table('Vendors address: my address, my town')
+		self.check_for_row_in_invoice_table('Tax type: AST')
+		self.check_for_row_in_invoice_table('Tax rate: 25')
 
-		# ALSO NEED TO CHECK THAT PAYEE, NAME, ADDRESS, TAX STUFF IS DISPLAYED!
-		# PAGE 63 SAVING USER INPUT
+		self.check_for_row_in_invoice_table('Line item 1: Item #1')
+		self.check_for_row_in_invoice_table('Line item 1 description: Description of item #1')
+		self.check_for_row_in_invoice_table('Line item 1 price per item: $45.00')
+		self.check_for_row_in_invoice_table('Line item 1 quantity: 2')
 
 		# he notices that he can add more line items and delete previously added
 		# line items
