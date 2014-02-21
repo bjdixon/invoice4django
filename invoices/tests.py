@@ -24,6 +24,10 @@ class HomePageTest(TestCase):
 		request.POST['invoice_number'] = '1234'
 
 		response = home_page(request)
+		
+		self.assertEqual(Invoice.objects.all().count(), 1)
+		new_invoice = Invoice.objects.all()[0]
+		self.assertEqual(new_invoice.invoice_number, '1234')
 
 		self.assertIn('1234', response.content.decode())
 		expected_html = render_to_string(
