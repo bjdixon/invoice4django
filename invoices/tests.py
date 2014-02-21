@@ -4,6 +4,7 @@ from django.http import HttpRequest
 from django.template.loader import render_to_string
 
 from invoices.views import home_page
+from invoices.models import Invoice, Line_item
 
 class HomePageTest(TestCase):
 
@@ -31,4 +32,22 @@ class HomePageTest(TestCase):
 		)
 		self.assertEqual(response.content.decode(), expected_html)
 
+	def test_saving_and_retrieving_invoices(self):
+		first_invoice = Invoice()
+		first_invoice.invoice_number = '1234'
+		first_invoice.invoiced_customer_name = 'Bob Buyer'
+		first_invoice.save()
+
+		second_invoice = Invoice()
+		second_invoice.invoice_number = '4321'
+		second_invoice.vendors_name = 'Sally Seller'
+		second_invoice.save()
+
+		saved_invoices = Invoice.objects.all()
+		self.assertEqual(saved_invoices.count(), 2)
+
+		first_saved_invoice = saved_invoices[0]
+		second_saved_invoice = saved_invoices[1]
+		self.assertEqual(first_saved_invoice.invoice_number, first_invoice.invoice_number)
+		self.assertEqual(second_saved_invoice.invoice_number, second_invoice.invoice_number)
 
