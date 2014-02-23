@@ -66,6 +66,8 @@ class NewVisitorTest(unittest.TestCase):
 		self.check_for_row_in_invoice_table('Line 1: Item #1')
 		self.check_for_row_in_invoice_table('Line 2: Item #2')
 
+		
+
 		# he notices that after each line item is added the net, tax and total 
 		# payable amounts increase by the correct amount
 
