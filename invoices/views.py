@@ -1,26 +1,17 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
 from invoices.models import Invoice, Line_item
 
 # Create your views here.
 def home_page(request):
-	invoice = Invoice()
-	invoice.invoice_number = request.POST.get('invoice_number', '')
-	invoice.invoiced_customer_name = request.POST.get('invoiced_customer_name', '')
-	invoice.invoiced_customer_address = request.POST.get('invoiced_customer_address', '')
-	invoice.vendors_name = request.POST.get('vendors_name', '')
-	invoice.vendors_address = request.POST.get('vendors_address', '')
-	invoice.tax_type = request.POST.get('tax_type', '')
-	invoice.tax_rate = request.POST.get('tax_rate', '')
-	invoice.save()
-	return render(request, 'home.html', {
-		'invoice_number_output': invoice.invoice_number,
-		'invoiced_customer_name_output': invoice.invoiced_customer_name,
-		'invoiced_customer_address_output': invoice.invoiced_customer_address,
-		'vendors_name_output': invoice.vendors_name,
-		'vendors_address_output': invoice.vendors_address,
-		'tax_type_output': invoice.tax_type,
-		'tax_rate_output': invoice.tax_rate,
-	})
-
+	if request.method == 'POST':
+		Line_item.objects.create(
+			line_item=request.POST['line_item'],
+			line_item_description = request.POST['line_item_description'],
+			line_item_quantity = request.POST['line_item_quantity']
+		)
+		return redirect('/')
+			
+	line_items = Line_item.objects.all()
+	return render(request, 'home.html', {'line_items': line_items})

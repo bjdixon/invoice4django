@@ -9,7 +9,7 @@ class Invoice(models.Model):
 	tax_type = models.TextField()
 	tax_rate = models.TextField()
 
-class Line_item(object):
+class Line_item(models.Model):
 	line_item = models.TextField()
 	line_item_description = models.TextField()
 	line_item_price = models.TextField()

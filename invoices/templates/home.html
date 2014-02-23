@@ -5,29 +5,16 @@
 	<body>
 		<h1>Invoices</h1>
 		<form method="POST">
-			<input id="invoice_number_input" name="invoice_number" placeholder="Enter the invoice number" /><br>
-			<input id="invoiced_customer_name_input" name="invoiced_customer_name" placeholder="Enter a customer" /><br>
-			<input id="invoiced_customer_address_input" name="invoiced_customer_address" placeholder="Enter customer address" /><br>
-			<input id="vendors_name_input" name="vendors_name" placeholder="Enter your name" /><br>
-			<input id="vendors_address_input" name="vendors_address" placeholder="Enter your address" /><br>
-			<input id="tax_type_input" name="tax_type" placeholder="Enter tax name" /><br>
-			<input id="tax_rate_input" name="tax_rate" placeholder="Enter tax rate" /><br><br>
-	
-			<input id="line_item_input" name="line_item" placeholder="Enter a line item" /><br>
-			<input id="line_item_description_input" name="line_item_description" placeholder="Enter line item description" /><br>
-			<input id="line_item_price_input" name="line_item_price" placeholder="Enter price per item" /><br>
-			<input id="line_item_quantity_input" name="line_item_quantity" placeholder="Enter quantity" /><br>
+			<input id="new_line_item_input" name="line_item" placeholder="Enter the line item" /><br>
+			<input id="new_line_item_description_input" name="line_item_description" placeholder="Enter a line item description" /><br>
+			<input id="new_line_item_quantity_input" name="line_item_quantity" placeholder="Enter quantity" /><br>
 			<button type="submit">Save</button>
 			{% csrf_token %}
 		</form>
 		<table id="invoice_table">
-			<tr><td>Invoice Number: {{ invoice_number_output }}</td></tr>
-			<tr><td>Customer: {{ invoiced_customer_name_output }}</td></tr>
-			<tr><td>Customer address: {{ invoiced_customer_address_output }}</td></tr>
-			<tr><td>Vendors name: {{ vendors_name_output }}</td></tr>
-			<tr><td>Vendors address: {{ vendors_address_output }}</td></tr>
-			<tr><td>Tax type: {{ tax_type_output }}</td></tr>
-			<tr><td>Tax rate: {{ tax_rate_output }}</td></tr>
+			{% for line_item in line_items %}
+				<tr><td>Line 1: {{ line_item.line_item }}</td></tr>
+			{% endfor %}
 		</table>
 	</body>
 </html>
