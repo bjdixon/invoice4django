@@ -13,7 +13,7 @@
 		</form>
 		<table id="invoice_table">
 			{% for line_item in line_items %}
-				<tr><td>Line 1: {{ line_item.line_item }}</td></tr>
+			<tr><td>Line {{ forloop.counter }}: {{ line_item.line_item }}</td></tr>
 			{% endfor %}
 		</table>
 	</body>
