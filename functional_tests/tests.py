@@ -1,8 +1,8 @@
+from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-import unittest
 
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
 
 	def setUp(self):
 		self.browser = webdriver.Firefox()
@@ -19,7 +19,7 @@ class NewVisitorTest(unittest.TestCase):
 	def test_can_start_an_invoice_and_retrieve_it_later(self):
 		# Jolby has heard about a new invoice site. He goes
 		# to check out it's home page.
-		self.browser.get('http://localhost:8000')
+		self.browser.get(self.live_server_url)
 
 		# he notices the page title and header mention Invoices
 		self.assertIn('Invoices', self.browser.title)
@@ -68,6 +68,7 @@ class NewVisitorTest(unittest.TestCase):
 
 		
 
+
 		# he notices that after each line item is added the net, tax and total 
 		# payable amounts increase by the correct amount
 
@@ -80,9 +81,5 @@ class NewVisitorTest(unittest.TestCase):
 
 
 		self.fail('finish the test')
-
-
-if __name__ == '__main__':
-	unittest.main(warnings='ignore')
 
 
