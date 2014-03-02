@@ -14,4 +14,5 @@ class Line_item(models.Model):
 	line_item_description = models.TextField()
 	line_item_price = models.TextField()
 	line_item_quantity = models.TextField()
+	invoice = models.ForeignKey(Invoice)
 

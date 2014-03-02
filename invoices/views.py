@@ -12,10 +12,12 @@ def view_invoice(request):
 	return render(request, 'invoice.html', {'line_items': line_items})
 
 def new_invoice(request):
+	invoice_ = Invoice.objects.create()
 	Line_item.objects.create(
 		line_item=request.POST['line_item'],
 		line_item_description=request.POST['line_item_description'],
-		line_item_quantity=request.POST['line_item_quantity']
+		line_item_quantity=request.POST['line_item_quantity'],
+		invoice = invoice_
 	)
 	return redirect('/invoices/the-only-invoice-in-the-world/')
 

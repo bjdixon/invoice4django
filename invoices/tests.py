@@ -22,16 +22,19 @@ class HomePageTest(TestCase):
 class ListViewTest(TestCase):
 
 	def test_display_all_line_items(self):
+		invoice_ = Invoice.objects.create()
 		Line_item.objects.create(
 			line_item='Line Item 1',
 			line_item_description='Description 1',
-			line_item_quantity='1'
+			line_item_quantity='1',
+			invoice=invoice_
 		)
 
 		Line_item.objects.create(
 			line_item='Line Item 2',
 			line_item_description='Description 2',
-			line_item_quantity='2'
+			line_item_quantity='2',
+			invoice=invoice_
 		)
 
 		response = self.client.get('/invoices/the-only-invoice-in-the-world/')
@@ -40,32 +43,41 @@ class ListViewTest(TestCase):
 		self.assertContains(response, 'Line Item 2')
 
 
-class LineItemModelTest(TestCase):
+class InvoiceAndLineItemModelTest(TestCase):
 
 	def test_uses_invoice_template(self):
 		response = self.client.get('/invoices/the-only-invoice-in-the-world/')
 		self.assertTemplateUsed(response, 'invoice.html')
 
 	def test_saving_and_retrieving_line_items(self):
+		invoice_ = Invoice()
+		invoice_.save()
 		first_line_item = Line_item()
 		first_line_item.line_item = 'Item #1'
 		first_line_item.line_item_description = 'Description of Item #1'
 		first_line_item.line_item_quantity = '2'
+		first_line_item.invoice = invoice_
 		first_line_item.save()
 
 		second_line_item = Line_item()
 		second_line_item.line_item = 'Item #2'
 		second_line_item.line_item_description = 'Description of Item #2'
 		second_line_item.line_item_quantity = '1'
+		second_line_item.invoice = invoice_
 		second_line_item.save()
+
+		saved_invoice = Invoice.objects.first()
+		self.assertEqual(saved_invoice, invoice_)
 
 		saved_line_items = Line_item.objects.all()
 		self.assertEqual(saved_line_items.count(), 2)
 
 		first_saved_line_item = saved_line_items[0]
 		second_saved_line_item = saved_line_items[1]
-		self.assertEqual(first_saved_line_item.line_item, first_line_item.line_item)
-		self.assertEqual(second_saved_line_item.line_item_quantity, second_line_item.line_item_quantity)
+		self.assertEqual(first_saved_line_item.line_item, 'Item #1')
+		self.assertEqual(first_saved_line_item.invoice, invoice_)
+		self.assertEqual(second_saved_line_item.line_item, 'Item #2')
+		self.assertEqual(second_saved_line_item.invoice, invoice_)
 
 
 class NewInvoiceTest(TestCase):
