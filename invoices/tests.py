@@ -18,36 +18,6 @@ class HomePageTest(TestCase):
 		expected_html = render_to_string('home.html')
 		self.assertEqual(response.content.decode(), expected_html)
 
-	def test_home_page_can_save_a_POST_request(self):
-		request = HttpRequest()
-		request.method = 'POST'
-		request.POST['line_item'] = 'Item #1'
-		request.POST['line_item_description'] = 'Description of Item #1'
-		request.POST['line_item_quantity'] = '2'
-
-		response = home_page(request)
-		
-		self.assertEqual(Line_item.objects.all().count(), 1)
-		new_line_item = Line_item.objects.all()[0]
-		self.assertEqual(new_line_item.line_item, 'Item #1')
-
-	def test_home_page_redirects_after_POST(self):
-		request = HttpRequest()
-		request.method = 'POST'
-		request.POST['line_item'] = 'Item #1'
-		request.POST['line_item_description'] = 'Description of Item #1'
-		request.POST['line_item_quantity'] = '2'
-
-		response = home_page(request)
-
-		self.assertEqual(response.status_code, 302)
-		self.assertEqual(response['location'], '/invoices/the-only-invoice-in-the-world/')
-
-	def test_home_page_only_saves_line_items_when_necessary(self):
-		request = HttpRequest()
-		home_page(request)
-		self.assertEqual(Line_item.objects.all().count(), 0)
-
 
 class ListViewTest(TestCase):
 
@@ -96,3 +66,31 @@ class LineItemModelTest(TestCase):
 		second_saved_line_item = saved_line_items[1]
 		self.assertEqual(first_saved_line_item.line_item, first_line_item.line_item)
 		self.assertEqual(second_saved_line_item.line_item_quantity, second_line_item.line_item_quantity)
+
+
+class NewInvoiceTest(TestCase):
+
+	def test_saving_a_POST_request(self):
+		self.client.post(
+			'/invoices/new',
+			data={
+				'line_item': 'Item #1',
+				'line_item_description': 'Description of Item #1',
+				'line_item_quantity': '2'
+			}
+		)
+		self.assertEqual(Line_item.objects.count(), 1)
+		new_line_item = Line_item.objects.first()
+		self.assertEqual(new_line_item.line_item, 'Item #1')
+
+	def test_redirects_after_POST(self):
+		response = self.client.post(
+			'/invoices/new',
+			data={
+				'line_item': 'Item #1',
+				'line_item_description': 'Description of Item #1',
+				'line_item_quantity': '2'
+			}
+		)
+		self.assertRedirects(response, '/invoices/the-only-invoice-in-the-world/')
+

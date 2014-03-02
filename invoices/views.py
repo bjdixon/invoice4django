@@ -5,16 +5,17 @@ from invoices.models import Invoice, Line_item
 
 # Create your views here.
 def home_page(request):
-	if request.method == 'POST':
-		Line_item.objects.create(
-			line_item=request.POST['line_item'],
-			line_item_description = request.POST['line_item_description'],
-			line_item_quantity = request.POST['line_item_quantity']
-		)
-		return redirect('/invoices/the-only-invoice-in-the-world/')
 	return render(request, 'home.html')
 
 def view_invoice(request):
 	line_items = Line_item.objects.all()
 	return render(request, 'invoice.html', {'line_items': line_items})
+
+def new_invoice(request):
+	Line_item.objects.create(
+		line_item=request.POST['line_item'],
+		line_item_description=request.POST['line_item_description'],
+		line_item_quantity=request.POST['line_item_quantity']
+	)
+	return redirect('/invoices/the-only-invoice-in-the-world/')
 

@@ -10,4 +10,5 @@ urlpatterns = patterns('',
 	#url(r'^admin/', include(admin.site.urls)),
 	url(r'^$', 'invoices.views.home_page', name='home'),
 	url(r'^invoices/the-only-invoice-in-the-world/$', 'invoices.views.view_invoice', name='view_invoice'),
+	url(r'^invoices/new$', 'invoices.views.new_invoice', name='new_invoice'),
 )
