@@ -41,12 +41,40 @@ class HomePageTest(TestCase):
 		response = home_page(request)
 
 		self.assertEqual(response.status_code, 302)
-		self.assertEqual(response['location'], '/')
+		self.assertEqual(response['location'], '/invoices/the-only-invoice-in-the-world/')
 
 	def test_home_page_only_saves_line_items_when_necessary(self):
 		request = HttpRequest()
 		home_page(request)
 		self.assertEqual(Line_item.objects.all().count(), 0)
+
+
+class ListViewTest(TestCase):
+
+	def test_display_all_line_items(self):
+		Line_item.objects.create(
+			line_item='Line Item 1',
+			line_item_description='Description 1',
+			line_item_quantity='1'
+		)
+
+		Line_item.objects.create(
+			line_item='Line Item 2',
+			line_item_description='Description 2',
+			line_item_quantity='2'
+		)
+
+		response = self.client.get('/invoices/the-only-invoice-in-the-world/')
+		
+		self.assertContains(response, 'Line Item 1')
+		self.assertContains(response, 'Line Item 2')
+
+
+class LineItemModelTest(TestCase):
+
+	def test_uses_invoice_template(self):
+		response = self.client.get('/invoices/the-only-invoice-in-the-world/')
+		self.assertTemplateUsed(response, 'invoice.html')
 
 	def test_saving_and_retrieving_line_items(self):
 		first_line_item = Line_item()
@@ -68,4 +96,3 @@ class HomePageTest(TestCase):
 		second_saved_line_item = saved_line_items[1]
 		self.assertEqual(first_saved_line_item.line_item, first_line_item.line_item)
 		self.assertEqual(second_saved_line_item.line_item_quantity, second_line_item.line_item_quantity)
-

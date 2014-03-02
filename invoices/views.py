@@ -11,7 +11,10 @@ def home_page(request):
 			line_item_description = request.POST['line_item_description'],
 			line_item_quantity = request.POST['line_item_quantity']
 		)
-		return redirect('/')
-			
+		return redirect('/invoices/the-only-invoice-in-the-world/')
+	return render(request, 'home.html')
+
+def view_invoice(request):
 	line_items = Line_item.objects.all()
-	return render(request, 'home.html', {'line_items': line_items})
+	return render(request, 'invoice.html', {'line_items': line_items})
+

@@ -24,7 +24,7 @@ class NewVisitorTest(LiveServerTestCase):
 		# he notices the page title and header mention Invoices
 		self.assertIn('Invoices', self.browser.title)
 		header_text = self.browser.find_element_by_tag_name('h1').text
-		self.assertIn('Invoices', header_text)
+		self.assertIn('Invoice', header_text)
 
 		# he is invited to enter an invoice number
 
@@ -85,9 +85,9 @@ class NewVisitorTest(LiveServerTestCase):
 		# Francis starts a new list by entering a new item
 		line_item_input = self.browser.find_element_by_id('new_line_item_input')
 		line_item_input.send_keys('Francis Item #1')
-		line_item_description_input = self.find_element_by_id('new_line_item_description_input')
+		line_item_description_input = self.browser.find_element_by_id('new_line_item_description_input')
 		line_item_description_input.send_keys('Description for Francis Item #2')
-		line_item_quantity_input = self.find_element_by_id('new_line_item_quantity')
+		line_item_quantity_input = self.browser.find_element_by_id('new_line_item_quantity_input')
 		line_item_quantity_input.send_keys('1')
 
 		line_item_quantity_input.send_keys(Keys.ENTER)
