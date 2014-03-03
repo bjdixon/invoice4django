@@ -4,7 +4,7 @@
 	</head>
 	<body>
 		<h1>Invoices</h1>
-		<form method="POST" action="/invoices/new">
+		<form method="POST" action="/invoices/{{ invoice.id }}/new_item">
 			<input id="new_line_item_input" name="line_item" placeholder="Enter the line item" /><br>
 			<input id="new_line_item_description_input" name="line_item_description" placeholder="Enter a line item description" /><br>
 			<input id="new_line_item_quantity_input" name="line_item_quantity" placeholder="Enter quantity" /><br>
@@ -12,8 +12,9 @@
 			{% csrf_token %}
 		</form>
 		<table id="invoice_table">
-			{% for line_item in line_items %}
-			<tr><td>Line {{ forloop.counter }}: {{ line_item.line_item }}</td></tr>
+			<tr><td>Invoice details here</td></tr>
+			{% for item in items %}
+			<tr><td>Line {{ forloop.counter }}: {{ item.line_item }}</td></tr>
 			{% endfor %}
 		</table>
 	</body>

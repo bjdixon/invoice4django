@@ -19,35 +19,58 @@ class HomePageTest(TestCase):
 		self.assertEqual(response.content.decode(), expected_html)
 
 
-class ListViewTest(TestCase):
+class InvoiceViewTest(TestCase):
 
-	def test_display_all_line_items(self):
+	def test_uses_invoice_template(self):
 		invoice_ = Invoice.objects.create()
+		response = self.client.get('/invoices/%d/' % (invoice_.id,))
+		self.assertTemplateUsed(response, 'invoice.html')
+
+	def test_display_only_items_for_that_list(self):
+		correct_invoice = Invoice.objects.create()
 		Line_item.objects.create(
 			line_item='Line Item 1',
 			line_item_description='Description 1',
 			line_item_quantity='1',
-			invoice=invoice_
+			invoice=correct_invoice
 		)
-
 		Line_item.objects.create(
 			line_item='Line Item 2',
 			line_item_description='Description 2',
 			line_item_quantity='2',
-			invoice=invoice_
+			invoice=correct_invoice
+		)
+		other_invoice = Invoice.objects.create()
+
+		Line_item.objects.create(
+			line_item='Other Line Item 1',
+			line_item_description='Description 1',
+			line_item_quantity='1',
+			invoice=other_invoice
+		)
+		Line_item.objects.create(
+			line_item='Other Line Item 2',
+			line_item_description='Description 2',
+			line_item_quantity='2',
+			invoice=other_invoice
 		)
 
-		response = self.client.get('/invoices/the-only-invoice-in-the-world/')
+		response = self.client.get('/invoices/%d/' % (correct_invoice.id,))
 		
 		self.assertContains(response, 'Line Item 1')
 		self.assertContains(response, 'Line Item 2')
 
+		self.assertNotContains(response, 'Other Line Item 1')
+		self.assertNotContains(response, 'Other Line Item 2')
+
+	def test_passes_correct_invoice_to_template(self):
+		other_invoice = Invoice.objects.create()
+		correct_invoice = Invoice.objects.create()
+		response = self.client.get('/invoices/%d/' % (correct_invoice.id,))
+		self.assertEqual(response.context['invoice'], correct_invoice)
+
 
 class InvoiceAndLineItemModelTest(TestCase):
-
-	def test_uses_invoice_template(self):
-		response = self.client.get('/invoices/the-only-invoice-in-the-world/')
-		self.assertTemplateUsed(response, 'invoice.html')
 
 	def test_saving_and_retrieving_line_items(self):
 		invoice_ = Invoice()
@@ -104,5 +127,42 @@ class NewInvoiceTest(TestCase):
 				'line_item_quantity': '2'
 			}
 		)
-		self.assertRedirects(response, '/invoices/the-only-invoice-in-the-world/')
+		new_invoice = Invoice.objects.first()
+		self.assertRedirects(response, '/invoices/%d/' % (new_invoice.id,))
+
+
+class NewItemTest(TestCase):
+
+	def test_can_save_a_POST_request_to_an_existing_invoice(self):
+		other_invoice = Invoice.objects.create()
+		correct_invoice = Invoice.objects.create()
+
+		self.client.post(
+			'/invoices/%d/new_item' % (correct_invoice.id,),
+			data={
+				'line_item': 'Item #1',
+				'line_item_description': 'Description of Item #1',
+				'line_item_quantity': '2'
+			}
+		)
+
+		self.assertEqual(Line_item.objects.count(), 1)
+		new_item = Line_item.objects.first()
+		self.assertEqual(new_item.line_item, 'Item #1')
+		self.assertEqual(new_item.invoice, correct_invoice)
+
+	def test_redirects_to_invoice_view(self):
+		other_invoice = Invoice.objects.create()
+		correct_invoice = Invoice.objects.create()
+
+		response = self.client.post(
+			'/invoices/%d/new_item' % (correct_invoice.id,),
+			data={
+				'line_item': 'Item #1',
+				'line_item_description': 'Description of Item #1',
+				'line_item_quantity': '2'
+			}
+		)
+		self.assertRedirects(response, '/invoices/%d/' % (correct_invoice.id,))
+
 

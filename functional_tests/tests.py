@@ -98,7 +98,7 @@ class NewVisitorTest(LiveServerTestCase):
 		self.assertNotEqual(francis_invoice_url, jolby_invoice_url)
 
 		# again, no trace of Jolby's invoice
-		page_text = self.browser.find_element_by_tag_name('body')
+		page_text = self.browser.find_element_by_tag_name('body').text
 		self.assertNotIn('Line 1: Item #1', page_text)
 		self.assertIn('Line 1: Francis Item #1', page_text)
 		
