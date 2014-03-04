@@ -26,7 +26,7 @@ class InvoiceViewTest(TestCase):
 		response = self.client.get('/invoices/%d/' % (invoice_.id,))
 		self.assertTemplateUsed(response, 'invoice.html')
 
-	def test_display_only_items_for_that_list(self):
+	def test_display_only_items_for_that_invoice(self):
 		correct_invoice = Invoice.objects.create()
 		Line_item.objects.create(
 			line_item='Line Item 1',
@@ -62,6 +62,38 @@ class InvoiceViewTest(TestCase):
 
 		self.assertNotContains(response, 'Other Line Item 1')
 		self.assertNotContains(response, 'Other Line Item 2')
+
+	def test_display_correct_details_for_that_invoice(self):
+		correct_invoice = Invoice.objects.create(
+			invoice_number='1234',
+			invoiced_customer_name='C Name',
+			invoiced_customer_address='123 customer address',
+			vendors_name='V Name',
+			vendors_address='123 vendors address',
+			tax_type='TST',
+			tax_rate='15'
+		)
+		Line_item.objects.create(
+			line_item='Line Item 1',
+			line_item_description='Description 1',
+			line_item_quantity='1',
+			invoice=correct_invoice
+		)
+		other_invoice = Invoice.objects.create()
+
+		Line_item.objects.create(
+			line_item='Other Line Item 1',
+			line_item_description='Description 1',
+			line_item_quantity='1',
+			invoice=other_invoice
+		)
+
+		response = self.client.get('/invoices/%d/' % (correct_invoice.id,))
+
+		self.assertContains(response, '123 customer address')
+		self.assertContains(response, 'Line Item 1')
+
+		self.assertNotContains(response, 'Other Line Item 1')
 
 	def test_passes_correct_invoice_to_template(self):
 		other_invoice = Invoice.objects.create()
@@ -102,6 +134,39 @@ class InvoiceAndLineItemModelTest(TestCase):
 		self.assertEqual(second_saved_line_item.line_item, 'Item #2')
 		self.assertEqual(second_saved_line_item.invoice, invoice_)
 
+	def test_saving_and_retrieving_invoices(self):
+		first_invoice = Invoice()
+		first_invoice.invoice_number = '1234'
+		first_invoice.invoiced_customer_name = 'C Name'
+		first_invoice.invoiced_customer_address = '123 customer address'
+		first_invoice.vendors_name = 'V Name'
+		first_invoice.vendors_address = '123 vendors address'
+		first_invoice.tax_type = 'TST'
+		first_invoice.tax_rate = '15'
+		first_invoice.save()
+
+		second_invoice = Invoice()
+		second_invoice.invoice_number = '4321'
+		second_invoice.invoiced_customer_name = 'Another C Name'
+		second_invoice.invoiced_customer_address = 'Another 123 customer address'
+		second_invoice.vendors_name = 'Another V Name'
+		second_invoice.vendors_address = 'Another 123 vendors address'
+		second_invoice.tax_type = 'TST'
+		second_invoice.tax_rate = '15'
+		second_invoice.save()
+
+		saved_invoice = Invoice.objects.first()
+		self.assertEqual(saved_invoice, first_invoice)
+
+		saved_invoices = Invoice.objects.all()
+		self.assertEqual(saved_invoices.count(), 2)
+
+		first_saved_invoice = saved_invoices[0]
+		second_saved_invoice = saved_invoices[1]
+		self.assertEqual(first_saved_invoice.invoice_number, '1234')
+		self.assertEqual(first_saved_invoice.invoiced_customer_name, 'C Name')
+		self.assertEqual(second_saved_invoice.invoice_number, '4321')
+		self.assertEqual(second_saved_invoice.invoiced_customer_name, 'Another C Name')
 
 class NewInvoiceTest(TestCase):
 
