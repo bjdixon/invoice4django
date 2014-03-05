@@ -31,21 +31,21 @@ class NewVisitorTest(LiveServerTestCase):
 		invoice_number.send_keys('1234')
 
 		# he is invited to enter a customer and their address
-		customer_name = self.browser.find_element_by_id('new_customer_name_input')
+		customer_name = self.browser.find_element_by_id('new_invoiced_customer_name_input')
 		customer_name.send_keys('Mr Customer')
 
-		customer_address = self.browser.find_element_by_id('new_customer_address_input')
+		customer_address = self.browser.find_element_by_id('new_invoiced_customer_address_input')
 		customer_address.send_keys('123 street name, anytown')
 
 		# he is invited to enter his own name and address
-		vendor_name = self.browser.find_element_by_id('new_vendors_name_input')
-		vendor_name.send_keys('Jolby')
+		vendors_name = self.browser.find_element_by_id('new_vendors_name_input')
+		vendors_name.send_keys('Jolby')
 
-		vendor_address = self.browser.find_element_by_id('new_vendors_address_input')
-		vendor_address.send_keys('123 jolby street, jolbyville')
+		vendors_address = self.browser.find_element_by_id('new_vendors_address_input')
+		vendors_address.send_keys('123 jolby street, jolbyville')
 
 		# he is invited to add a tax type and rate
-		tax_type = self.browser.find_element_by_id('new_tax_rate_input')
+		tax_type = self.browser.find_element_by_id('new_tax_type_input')
 		tax_type.send_keys('AST')
 
 		tax_rate = self.browser.find_element_by_id('new_tax_rate_input')
@@ -67,24 +67,21 @@ class NewVisitorTest(LiveServerTestCase):
 		self.assertRegex(jolby_invoice_url, '/invoices/.+')
 
 		invoice_number = self.browser.find_element_by_id('new_invoice_number_input')
-		self.assertIn('1234', invoice_number.get_attribute('value'))
+		self.assertIn(invoice_number.get_attribute('value'), '1234')
 
-		customer_name = self.browser.find_element_by_id('new_customer_name_input')
-		self.assertIn('Mr Customer', customer_name.get_attribute('value'))
-
-		customer_address = self.browser.find_element_by_id('new_customer_address_input')
+		customer_address = self.browser.find_element_by_id('new_invoiced_customer_address_input')
 		self.assertIn('123 street name, anytown', customer_address.get_attribute('value'))
 
-		vendor_name = self.browser.get_element_by_id('new_vendors_name_input')
-		self.assertIn('Jolby', vendor_name.get_attribute('value'))
+		vendors_name = self.browser.find_element_by_id('new_vendors_name_input')
+		self.assertIn('Jolby', vendors_name.get_attribute('value'))
 
-		vendor_address = self.browser.get_element_by_id('new_vendors_address_input')
-		self.assertIn('123 jolby street, jolbyville', vendor_address.get_attribute('value'))
+		vendors_address = self.browser.find_element_by_id('new_vendors_address_input')
+		self.assertIn('123 jolby street, jolbyville', vendors_address.get_attribute('value'))
 
-		tax_type = self.browser.get_element_by_id('new_tax_type_input')
+		tax_type = self.browser.find_element_by_id('new_tax_type_input')
 		self.assertIn('AST', tax_type.get_attribute('value'))
 
-		tax_rate = self.browser.get_element_by_id('new_tax_rate_input')
+		tax_rate = self.browser.find_element_by_id('new_tax_rate_input')
 		self.assertIn('25', tax_rate.get_attribute('value'))
 
 		self.check_for_row_in_invoice_table('Line 1: Item #1')
@@ -108,22 +105,19 @@ class NewVisitorTest(LiveServerTestCase):
 		invoice_number = self.browser.find_element_by_id('new_invoice_number_input')
 		self.assertIn('1234', invoice_number.get_attribute('value'))
 
-		customer_name = self.browser.find_element_by_id('new_customer_name_input')
-		self.assertIn('Mr Customer', customer_name.get_attribute('value'))
-
-		customer_address = self.browser.find_element_by_id('new_customer_address_input')
+		customer_address = self.browser.find_element_by_id('new_invoiced_customer_address_input')
 		self.assertIn('123 street name, anytown', customer_address.get_attribute('value'))
 
-		vendor_name = self.browser.get_element_by_id('new_vendors_name_input')
-		self.assertIn('Jolby', vendor_name.get_attribute('value'))
+		vendors_name = self.browser.find_element_by_id('new_vendors_name_input')
+		self.assertIn('Jolby', vendors_name.get_attribute('value'))
 
-		vendor_address = self.browser.get_element_by_id('new_vendors_address_input')
-		self.assertIn('123 jolby street, jolbyville', vendor_address.get_attribute('value'))
+		vendors_address = self.browser.find_element_by_id('new_vendors_address_input')
+		self.assertIn('123 jolby street, jolbyville', vendors_address.get_attribute('value'))
 
-		tax_type = self.browser.get_element_by_id('new_tax_type_input')
+		tax_type = self.browser.find_element_by_id('new_tax_type_input')
 		self.assertIn('AST', tax_type.get_attribute('value'))
 
-		tax_rate = self.browser.get_element_by_id('new_tax_rate_input')
+		tax_rate = self.browser.find_element_by_id('new_tax_rate_input')
 		self.assertIn('25', tax_rate.get_attribute('value'))
 
 		# A new user, Francis visits the site
@@ -146,21 +140,21 @@ class NewVisitorTest(LiveServerTestCase):
 		invoice_number.send_keys('4321')
 
 		# he is invited to enter a customer and their address
-		customer_name = self.browser.find_element_by_id('new_customer_input')
+		customer_name = self.browser.find_element_by_id('new_invoiced_customer_name_input')
 		customer_name.send_keys('Mrs Customer')
 
-		customer_address = self.browser.find_element_by_id('new_customer_address_input')
+		customer_address = self.browser.find_element_by_id('new_invoiced_customer_address_input')
 		customer_address.send_keys('123 street name, anytown')
 
 		# he is invited to enter his own name and address
-		vendor_name = self.browser.find_element_by_id('new_vendor_name_input')
-		vendor_name.send_keys('Francis')
+		vendors_name = self.browser.find_element_by_id('new_vendors_name_input')
+		vendors_name.send_keys('Francis')
 
-		vendor_address = self.browser.find_element_by_id('new_vendor_address_input')
-		vendor_address.send_keys('123 francis street, france')
+		vendors_address = self.browser.find_element_by_id('new_vendors_address_input')
+		vendors_address.send_keys('123 francis street, france')
 
 		# he is invited to add a tax type and rate
-		tax_type = self.browser.find_element_by_id('new_tax_rate_input')
+		tax_type = self.browser.find_element_by_id('new_tax_type_input')
 		tax_type.send_keys('AST')
 
 		tax_rate = self.browser.find_element_by_id('new_tax_rate_input')
@@ -186,7 +180,6 @@ class NewVisitorTest(LiveServerTestCase):
 		self.assertNotIn('Jolby', page_text)
 		self.assertNotIn('Line 1: Item #1', page_text)
 		self.assertIn('Line 1: Francis Item #1', page_text)
-		self.assertIn('123 francis street, france', page_text)
 		
 		# he notices that after each line item is added the net, tax and total 
 		# payable amounts increase by the correct amount
