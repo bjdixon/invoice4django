@@ -31,17 +31,17 @@ class NewVisitorTest(LiveServerTestCase):
 		invoice_number.send_keys('1234')
 
 		# he is invited to enter a customer and their address
-		customer_name = self.browser.find_element_by_id('new_customer_input')
+		customer_name = self.browser.find_element_by_id('new_customer_name_input')
 		customer_name.send_keys('Mr Customer')
 
 		customer_address = self.browser.find_element_by_id('new_customer_address_input')
 		customer_address.send_keys('123 street name, anytown')
 
 		# he is invited to enter his own name and address
-		vendor_name = self.browser.find_element_by_id('new_vendor_name_input')
+		vendor_name = self.browser.find_element_by_id('new_vendors_name_input')
 		vendor_name.send_keys('Jolby')
 
-		vendor_address = self.browser.find_element_by_id('new_vendor_address_input')
+		vendor_address = self.browser.find_element_by_id('new_vendors_address_input')
 		vendor_address.send_keys('123 jolby street, jolbyville')
 
 		# he is invited to add a tax type and rate
@@ -75,10 +75,10 @@ class NewVisitorTest(LiveServerTestCase):
 		customer_address = self.browser.find_element_by_id('new_customer_address_input')
 		self.assertIn('123 street name, anytown', customer_address.get_attribute('value'))
 
-		vendor_name = self.browser.get_element_by_id('new_vendor_name_input')
+		vendor_name = self.browser.get_element_by_id('new_vendors_name_input')
 		self.assertIn('Jolby', vendor_name.get_attribute('value'))
 
-		vendor_address = self.browser.get_element_by_id('new_vendor_address_input')
+		vendor_address = self.browser.get_element_by_id('new_vendors_address_input')
 		self.assertIn('123 jolby street, jolbyville', vendor_address.get_attribute('value'))
 
 		tax_type = self.browser.get_element_by_id('new_tax_type_input')
@@ -114,10 +114,10 @@ class NewVisitorTest(LiveServerTestCase):
 		customer_address = self.browser.find_element_by_id('new_customer_address_input')
 		self.assertIn('123 street name, anytown', customer_address.get_attribute('value'))
 
-		vendor_name = self.browser.get_element_by_id('new_vendor_name_input')
+		vendor_name = self.browser.get_element_by_id('new_vendors_name_input')
 		self.assertIn('Jolby', vendor_name.get_attribute('value'))
 
-		vendor_address = self.browser.get_element_by_id('new_vendor_address_input')
+		vendor_address = self.browser.get_element_by_id('new_vendors_address_input')
 		self.assertIn('123 jolby street, jolbyville', vendor_address.get_attribute('value'))
 
 		tax_type = self.browser.get_element_by_id('new_tax_type_input')

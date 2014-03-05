@@ -174,6 +174,13 @@ class NewInvoiceTest(TestCase):
 		self.client.post(
 			'/invoices/new',
 			data={
+				'invoice_number': '1234',
+				'invoiced_customer_name': 'C Name',
+				'invoiced_customer_address': '123 address',
+				'vendors_name': 'V Name',
+				'vendors_address': '123 address',
+				'tax_type': 'TST',
+				'tax_rate': '15',
 				'line_item': 'Item #1',
 				'line_item_description': 'Description of Item #1',
 				'line_item_quantity': '2'
@@ -187,6 +194,13 @@ class NewInvoiceTest(TestCase):
 		response = self.client.post(
 			'/invoices/new',
 			data={
+				'invoice_number': '1234',
+				'invoiced_customer_name': 'C Name',
+				'invoiced_customer_address': '123 address',
+				'vendors_name': 'V Name',
+				'vendors_address': '123 address',
+				'tax_type': 'TST',
+				'tax_rate': '15',
 				'line_item': 'Item #1',
 				'line_item_description': 'Description of Item #1',
 				'line_item_quantity': '2'
@@ -205,6 +219,13 @@ class NewItemTest(TestCase):
 		self.client.post(
 			'/invoices/%d/new_item' % (correct_invoice.id,),
 			data={
+				'invoice_number': '1234',
+				'invoiced_customer_name': 'C Name',
+				'invoiced_customer_address': '123 address',
+				'vendors_name': 'V Name',
+				'vendors_address': '123 address',
+				'tax_type': 'TST',
+				'tax_rate': '15',
 				'line_item': 'Item #1',
 				'line_item_description': 'Description of Item #1',
 				'line_item_quantity': '2'
@@ -223,6 +244,13 @@ class NewItemTest(TestCase):
 		response = self.client.post(
 			'/invoices/%d/new_item' % (correct_invoice.id,),
 			data={
+				'invoice_number': '1234',
+				'invoiced_customer_name': 'C Name',
+				'invoiced_customer_address': '123 address',
+				'vendors_name': 'V Name',
+				'vendors_address': '123 address',
+				'tax_type': 'TST',
+				'tax_rate': '15',
 				'line_item': 'Item #1',
 				'line_item_description': 'Description of Item #1',
 				'line_item_quantity': '2'

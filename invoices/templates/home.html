@@ -5,6 +5,13 @@
 	<body>
 		<h1>Start a new Invoice</h1>
 		<form method="POST" action="/invoices/new">
+			<input id="new_invoice_number_input" name="invoice_number" placeholder="Enter an invoice number" /><br>
+			<input id="new_invoiced_customer_name_input" name="invoiced_customer_name" placeholder="Enter customer name" /><br>
+			<input id="new_invoiced_customer_address_input" name="invoiced_customer_address" placeholder="Enter customer address" /><br>
+			<input id="new_vendors_name_input" name="vendors_name" placeholder="Enter vendor name" /><br>
+			<input id="new_vendors_address_input" name="vendors_address" placeholder="Enter vendor address" /><br>
+			<input id="new_tax_type_input" name="tax_type" placeholder="Enter tax rate" /><br>
+			<hr>
 			<input id="new_line_item_input" name="line_item" placeholder="Enter the line item" /><br>
 			<input id="new_line_item_description_input" name="line_item_description" placeholder="Enter a line item description" /><br>
 			<input id="new_line_item_quantity_input" name="line_item_quantity" placeholder="Enter quantity" /><br>
