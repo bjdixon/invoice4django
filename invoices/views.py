@@ -10,7 +10,7 @@ def home_page(request):
 def view_invoice(request, invoice_id):
 	invoice_ = Invoice.objects.get(id=invoice_id)
 	items = Line_item.objects.filter(invoice=invoice_)
-	currency_ = Currency.objects.filter(invoice=invoice_)
+	currency_ = Currency.objects.filter(invoice=invoice_).first()
 	return render(request, 'invoice.html', {'invoice': invoice_, 'items': items, 'currency': currency_})
 
 def new_invoice(request):

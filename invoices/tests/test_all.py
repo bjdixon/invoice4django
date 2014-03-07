@@ -328,3 +328,15 @@ class NewCurrencyTest(TestCase):
 		new_currency = Currency.objects.first()
 		self.assertEqual(new_currency.currency_symbol, '$')
 		self.assertEqual(new_currency.currency_name, 'CAD')
+
+	def test_passes_correct_currency_to_template(self):
+		correct_invoice = Invoice.objects.create()
+		correct_currency = Currency.objects.create(
+			currency_symbol='$',
+			currency_name='CAD',
+			invoice=correct_invoice
+		)
+		response = self.client.get('/invoices/%d/' % (correct_invoice.id,))
+		self.assertEqual(response.context['invoice'], correct_invoice)
+		self.assertEqual(response.context['currency'], correct_currency)
+

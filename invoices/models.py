@@ -19,5 +19,5 @@ class Line_item(models.Model):
 class Currency(models.Model):
 	currency_symbol = models.TextField()
 	currency_name = models.TextField()
-	invoice = models.ForeignKey(Invoice)
+	invoice = models.ForeignKey(Invoice, unique=True)
 
