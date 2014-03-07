@@ -16,3 +16,8 @@ class Line_item(models.Model):
 	line_item_quantity = models.TextField()
 	invoice = models.ForeignKey(Invoice)
 
+class Currency(models.Model):
+	currency_symbol = models.TextField()
+	currency_name = models.TextField()
+	invoice = models.ForeignKey(Invoice)
+
