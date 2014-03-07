@@ -6,7 +6,7 @@
 		<h1>Invoices</h1>
 		<form method="POST" action="/invoices/{{ invoice.id }}/new_item">
 			<input id="new_invoice_number_input" name="invoice_number" value="{{ invoice.invoice_number }}" placeholder="Enter an invoice number" /><br>
-			<input id="new_invoiced_customer_name_input" name="invoiced_customer_name" value="{{ invoice.invoice_number }}" placeholder="Enter customer name" /><br>
+			<input id="new_invoiced_customer_name_input" name="invoiced_customer_name" value="{{ invoice.invoiced_customer_name }}" placeholder="Enter customer name" /><br>
 			<input id="new_invoiced_customer_address_input" name="invoiced_customer_address" value="{{ invoice.invoiced_customer_address }}" placeholder="Enter customer address" /><br>
 			<input id="new_vendors_name_input" name="vendors_name" value="{{ invoice.vendors_name }}" placeholder="Enter vendor name" /><br>
 			<input id="new_vendors_address_input" name="vendors_address" value="{{ invoice.vendors_address }}" placeholder="Enter vendor address" /><br>

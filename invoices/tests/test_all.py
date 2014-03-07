@@ -340,3 +340,107 @@ class NewCurrencyTest(TestCase):
 		self.assertEqual(response.context['invoice'], correct_invoice)
 		self.assertEqual(response.context['currency'], correct_currency)
 
+class InvoiceAndCurrencyFieldsCanBeUpdated(TestCase):
+	
+	def test_invoice_fields_can_be_overwritten(self):
+		invoice_ = Invoice.objects.create(
+			invoice_number=1234,
+			invoiced_customer_name='name',
+			invoiced_customer_address='address',
+			vendors_name='vname',
+			vendors_address='vaddress',
+			tax_type='TST',
+			tax_rate='25'
+		)
+
+		self.assertEqual(Invoice.objects.count(), 1)
+		self.assertEqual(Invoice.objects.first(), invoice_)
+
+		updated_invoice = Invoice.objects.first()
+		updated_invoice.tax_type = 'TAX'
+		updated_invoice.vendor_name = 'new name'
+		updated_invoice.save()
+
+		self.assertEqual(Invoice.objects.first(), updated_invoice)
+		edited_invoice = Invoice.objects.first()
+		self.assertEqual(edited_invoice.tax_type, 'TAX')
+		self.assertEqual(edited_invoice.vendors_name, updated_invoice.vendors_name)
+
+	def test_currency_fields_can_be_overwritten(self):
+		invoice_ = Invoice.objects.create()
+		currency_ = Currency.objects.create(
+			currency_symbol='$',
+			currency_name='CAD',
+			invoice=invoice_
+		)
+
+		self.assertEqual(Currency.objects.count(), 1)
+		self.assertEqual(Currency.objects.first(), currency_)
+		
+		update_currency = Currency.objects.first()
+		update_currency.currency_name = 'TST'
+		update_currency.save()
+
+		edited_currency = Currency.objects.first()
+
+		self.assertEqual(Currency.objects.count(), 1)
+		self.assertEqual(edited_currency.invoice, invoice_)
+		self.assertEqual(edited_currency.currency_name, 'TST')
+
+	def test_invoice_fields_are_updated_on_POST(self):
+		self.client.post(
+			'/invoices/new',
+			data={
+				'invoice_number': '1234',
+				'invoiced_customer_name': 'C Name',
+				'invoiced_customer_address': '123 address',
+				'vendors_name': 'V Name',
+				'vendors_address': '123 address',
+				'tax_type': 'TST',
+				'tax_rate': '15',
+				'currency_symbol': '$',
+				'currency_name': 'CAD',
+				'line_item': 'Item #1',
+				'line_item_description': 'Description of Item #1',
+				'line_item_quantity': '2',
+				'line_item_price': '100'
+			}
+		)
+
+		self.assertEqual(Invoice.objects.count(), 1)
+		new_invoice = Invoice.objects.first()
+		self.assertEqual(Line_item.objects.count(), 1)
+		new_item = Line_item.objects.first()
+		self.assertEqual(new_item.line_item, 'Item #1')
+		self.assertEqual(new_item.line_item_price, '100')
+		self.assertEqual(new_item.invoice, new_invoice)
+
+		self.client.post(
+			'/invoices/%d/new_item' % (new_invoice.id,),
+			data={
+				'invoice_number': '4321',
+				'invoiced_customer_name': 'C Name',
+				'invoiced_customer_address': '123 address',
+				'vendors_name': 'V Name',
+				'vendors_address': '123 address',
+				'tax_type': 'TST',
+				'tax_rate': '15',
+				'currency_symbol': '$',
+				'currency_name': 'TST',
+				'line_item': 'Item #1',
+				'line_item_description': 'Description of Item #1',
+				'line_item_quantity': '2',
+				'line_item_price': '100'
+			}
+		)
+		
+		self.assertEqual(Invoice.objects.count(), 1)
+		self.assertEqual(Currency.objects.count(), 1)
+		
+		updated_invoice = Invoice.objects.get(id=new_invoice.id)
+		updated_currency = Currency.objects.get(invoice=updated_invoice)
+
+		self.assertEqual(updated_invoice.invoice_number, '4321')
+		self.assertEqual(updated_invoice.tax_type, 'TST')
+		self.assertEqual(updated_currency.currency_name, 'TST')
+
