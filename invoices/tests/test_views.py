@@ -18,6 +18,10 @@ class HomePageTest(TestCase):
 		expected_html = render_to_string('home.html')
 		self.assertEqual(response.content.decode(), expected_html)
 
+	def test_home_page_renders_home_template(self):
+		response = self.client.get('/')
+		self.assertTemplateUsed(response, 'home.html')
+
 
 class InvoiceViewTest(TestCase):
 
@@ -341,51 +345,6 @@ class NewCurrencyTest(TestCase):
 		self.assertEqual(response.context['currency'], correct_currency)
 
 class InvoiceAndCurrencyFieldsCanBeUpdated(TestCase):
-	
-	def test_invoice_fields_can_be_overwritten(self):
-		invoice_ = Invoice.objects.create(
-			invoice_number=1234,
-			invoiced_customer_name='name',
-			invoiced_customer_address='address',
-			vendors_name='vname',
-			vendors_address='vaddress',
-			tax_type='TST',
-			tax_rate='25'
-		)
-
-		self.assertEqual(Invoice.objects.count(), 1)
-		self.assertEqual(Invoice.objects.first(), invoice_)
-
-		updated_invoice = Invoice.objects.first()
-		updated_invoice.tax_type = 'TAX'
-		updated_invoice.vendor_name = 'new name'
-		updated_invoice.save()
-
-		self.assertEqual(Invoice.objects.first(), updated_invoice)
-		edited_invoice = Invoice.objects.first()
-		self.assertEqual(edited_invoice.tax_type, 'TAX')
-		self.assertEqual(edited_invoice.vendors_name, updated_invoice.vendors_name)
-
-	def test_currency_fields_can_be_overwritten(self):
-		invoice_ = Invoice.objects.create()
-		currency_ = Currency.objects.create(
-			currency_symbol='$',
-			currency_name='CAD',
-			invoice=invoice_
-		)
-
-		self.assertEqual(Currency.objects.count(), 1)
-		self.assertEqual(Currency.objects.first(), currency_)
-		
-		update_currency = Currency.objects.first()
-		update_currency.currency_name = 'TST'
-		update_currency.save()
-
-		edited_currency = Currency.objects.first()
-
-		self.assertEqual(Currency.objects.count(), 1)
-		self.assertEqual(edited_currency.invoice, invoice_)
-		self.assertEqual(edited_currency.currency_name, 'TST')
 
 	def test_invoice_fields_are_updated_on_POST(self):
 		self.client.post(
