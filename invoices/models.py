@@ -14,6 +14,10 @@ class Invoice(models.Model):
 	tax_amount = models.TextField()
 	total_payable = models.TextField()
 
+	def save(self, *args, **kwargs):
+		self.full_clean(exclude=['net_amount', 'tax_amount', 'total_payable'])
+
+
 class Line_item(models.Model):
 	line_item = models.TextField()
 	line_item_description = models.TextField()

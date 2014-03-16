@@ -2,6 +2,7 @@ from django.core.urlresolvers import resolve
 from django.test import TestCase
 from django.http import HttpRequest
 from django.template.loader import render_to_string
+from django.core.exceptions import ValidationError
 
 from invoices.views import home_page
 from invoices.models import Invoice, Line_item, Currency
@@ -131,3 +132,11 @@ class UpdatingModels(TestCase):
 		self.assertEqual(edited_currency.invoice, invoice_)
 		self.assertEqual(edited_currency.currency_name, 'TST')
 
+
+class ModelValidation(TestCase):
+
+	def test_cant_add_empty_invoice(self):
+		invoice_ = Invoice()
+		with self.assertRaises(ValidationError):
+			invoice_.save()
+		
