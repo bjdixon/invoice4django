@@ -1,5 +1,6 @@
 from django.core.urlresolvers import resolve
 from django.test import TestCase
+from unittest import skip
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 
@@ -121,7 +122,7 @@ class InvoiceAndLineItemModelTest(TestCase):
 		first_line_item.line_item = 'Item #1'
 		first_line_item.line_item_description = 'Description of Item #1'
 		first_line_item.line_item_quantity = '2'
-		first_line_item.line_item_price = '100',
+		first_line_item.line_item_price = '100'
 		first_line_item.invoice = invoice_
 		first_line_item.save()
 
@@ -129,7 +130,7 @@ class InvoiceAndLineItemModelTest(TestCase):
 		second_line_item.line_item = 'Item #2'
 		second_line_item.line_item_description = 'Description of Item #2'
 		second_line_item.line_item_quantity = '1'
-		second_line_item.line_item_price = '10',
+		second_line_item.line_item_price = '10'
 		second_line_item.invoice = invoice_
 		second_line_item.save()
 
@@ -403,3 +404,82 @@ class InvoiceAndCurrencyFieldsCanBeUpdated(TestCase):
 		self.assertEqual(updated_invoice.tax_type, 'TST')
 		self.assertEqual(updated_currency.currency_name, 'TST')
 
+
+class CalculateTotals(TestCase):
+
+	def test_line_item_totals_are_calculated_correctly(self):
+		correct_invoice = Invoice.objects.create()
+
+		self.client.post(
+			'/invoices/%d/new_item' % (correct_invoice.id,),
+			data={
+				'invoice_number': '1234',
+				'invoiced_customer_name': 'C Name',
+				'invoiced_customer_address': '123 address',
+				'vendors_name': 'V Name',
+				'vendors_address': '123 address',
+				'tax_type': 'TST',
+				'tax_rate': '15',
+				'currency_symbol': '$',
+				'currency_name': 'CAD',
+				'line_item': 'Item #1',
+				'line_item_description': 'Description of Item #1',
+				'line_item_quantity': '2',
+				'line_item_price': '100'
+			}
+		)
+
+		new_item = Line_item.objects.first()
+		self.assertEqual(new_item.line_item_total, '200.00')
+		
+	def test_tax_is_calculated_correctly(self):
+		correct_invoice = Invoice.objects.create()
+
+		self.client.post(
+			'/invoices/%d/new_item' % (correct_invoice.id,),
+			data={
+				'invoice_number': '1234',
+				'invoiced_customer_name': 'C Name',
+				'invoiced_customer_address': '123 address',
+				'vendors_name': 'V Name',
+				'vendors_address': '123 address',
+				'tax_type': 'TST',
+				'tax_rate': '15',
+				'currency_symbol': '$',
+				'currency_name': 'CAD',
+				'line_item': 'Item #1',
+				'line_item_description': 'Description of Item #1',
+				'line_item_quantity': '2',
+				'line_item_price': '100'
+			}
+		)
+		correct_invoice = Invoice.objects.first()
+		self.assertEqual(correct_invoice.tax_amount, '30.00')
+		
+
+	def test_total_payable_is_calculated_correctly(self):
+		correct_invoice = Invoice.objects.create()
+
+		self.client.post(
+			'/invoices/%d/new_item' % (correct_invoice.id,),
+			data={
+				'invoice_number': '1234',
+				'invoiced_customer_name': 'C Name',
+				'invoiced_customer_address': '123 address',
+				'vendors_name': 'V Name',
+				'vendors_address': '123 address',
+				'tax_type': 'TST',
+				'tax_rate': '15',
+				'currency_symbol': '$',
+				'currency_name': 'CAD',
+				'line_item': 'Item #1',
+				'line_item_description': 'Description of Item #1',
+				'line_item_quantity': '2',
+				'line_item_price': '100'
+			}
+		)
+		correct_invoice = Invoice.objects.first()		
+		self.assertEqual(correct_invoice.total_payable, '230.00')
+
+	def test_total_payable_and_tax_amount_are_displayed_after_POST(self):
+		pass

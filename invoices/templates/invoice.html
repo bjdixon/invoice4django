@@ -18,14 +18,31 @@
 			<input id="new_line_item_input" name="line_item" placeholder="Enter the line item" /><br>
 			<input id="new_line_item_description_input" name="line_item_description" placeholder="Enter a line item description" /><br>
 			<input id="new_line_item_quantity_input" name="line_item_quantity" placeholder="Enter quantity" /><br>
-			<input id="new_line_item_quantity_input" name="line_item_price" placeholder="Enter price" /><br>
+			<input id="new_line_item_price_input" name="line_item_price" placeholder="Enter price" /><br>
 			<button type="submit">Save</button>
 			{% csrf_token %}
 		</form>
 		<table id="invoice_table">
 			{% for item in items %}
-			<tr><td>Line {{ forloop.counter }}: {{ item.line_item }}</td></tr>
+			<tr>
+				<td>Line {{ forloop.counter }}: {{ item.line_item }}</td>
+			</tr>
+			<tr>
+				<td>Quantity: {{ item.line_item_quantity }}</td>
+			</tr>
+			<tr>
+				<td>Price per unit: {{ item.line_item_price }}</td>
+			</tr>
+			<tr>
+				<td>Total: {{ item.line_item_total }}</td>
+			</tr>
+			<tr>
+				<td><hr></td>
+			</tr>
 			{% endfor %}
 		</table>
+		<span id="net_total"></span><br>
+		<span id="tax_amount"></span><br>
+		<span id="total_payable"></span>
 	</body>
 </html>

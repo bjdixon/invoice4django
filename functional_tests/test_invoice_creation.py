@@ -92,7 +92,10 @@ class NewVisitorTest(FunctionalTest):
 		line_item_quantity_input = self.browser.find_element_by_id('new_line_item_quantity_input')
 		line_item_quantity_input.send_keys('1')
 
-		line_item_input.send_keys(Keys.ENTER)
+		line_item_price_input = self.browser.find_element_by_id('new_line_item_price_input')
+		line_item_price_input.send_keys('125')
+
+		line_item_price_input.send_keys(Keys.ENTER)
 
 		# after the page refreshes both items are now visible
 		self.check_for_row_in_invoice_table('Line 1: Item #1')
@@ -172,7 +175,10 @@ class NewVisitorTest(FunctionalTest):
 		line_item_quantity_input = self.browser.find_element_by_id('new_line_item_quantity_input')
 		line_item_quantity_input.send_keys('1')
 
-		line_item_quantity_input.send_keys(Keys.ENTER)
+		line_item_price_input = self.browser.find_element_by_id('new_line_item_price_input')
+		line_item_price_input.send_keys('10')
+
+		line_item_price_input.send_keys(Keys.ENTER)
 
 		# Francis gets his own unique URL
 		francis_invoice_url = self.browser.current_url
@@ -191,7 +197,7 @@ class NewVisitorTest(FunctionalTest):
 		currency_name = self.browser.find_element_by_id('new_currency_name_input')
 		currency_name.send_keys('USD\n')
 
-		# when page refreshes he noticres that these fields have been updated
+		# when page refreshes he notices that these fields have been updated
 		tax_value = self.browser.find_element_by_id('new_tax_type_input').get_attribute('value')
 		currency_value = self.browser.find_element_by_id('new_currency_name_input').get_attribute('value')
 		self.assertIn('TAX', tax_value)
@@ -199,7 +205,14 @@ class NewVisitorTest(FunctionalTest):
 		
 		# he notices that after each line item is added the net, tax and total 
 		# payable amounts increase by the correct amount
+		net_total = self.browser.find_element_by_id('net_total')
+		self.assertIn(net_total, '10')
 
+		tax_value = self.browser.find_element_by_id('tax_amount')
+		self.assertEqual(tax_value, '2.50')
+
+		total_payable = self.browser.find_element_by_id('total_payable')
+		self.assertEqual(total_payable, '12.50')
 
 		# he notices that he can click a button to save the invoice as a pdf 
 

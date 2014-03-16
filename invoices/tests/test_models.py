@@ -16,7 +16,7 @@ class CreatingAndRetrievingModels(TestCase):
 		first_line_item.line_item = 'Item #1'
 		first_line_item.line_item_description = 'Description of Item #1'
 		first_line_item.line_item_quantity = '2'
-		first_line_item.line_item_price = '100',
+		first_line_item.line_item_price = '100'
 		first_line_item.invoice = invoice_
 		first_line_item.save()
 
@@ -24,7 +24,7 @@ class CreatingAndRetrievingModels(TestCase):
 		second_line_item.line_item = 'Item #2'
 		second_line_item.line_item_description = 'Description of Item #2'
 		second_line_item.line_item_quantity = '1'
-		second_line_item.line_item_price = '10',
+		second_line_item.line_item_price = '10'
 		second_line_item.invoice = invoice_
 		second_line_item.save()
 

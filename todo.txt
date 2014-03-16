@@ -1,0 +1,13 @@
+Unit test for checking tax amount and total payable are shown on the page after POST.
+
+Unit tests need refactoring. test_views is really long.
+
+FT breaks when invoice details are updated and a new line item isn't added. Unit tests need to be added for this and the ability to update the invoice without adding a new (blank) line item.
+
+make form look more like an invoice 
+
+Functionality to add: 
+delete line items, 
+add users and protect their invoices from public, 
+export as pdf
+
