@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.core.exceptions import ValidationError
+from unittest import skip
 
 from invoices.views import home_page
 from invoices.models import Invoice, Line_item, Currency
@@ -135,6 +136,7 @@ class UpdatingModels(TestCase):
 
 class ModelValidation(TestCase):
 
+	@skip
 	def test_cant_add_empty_invoice(self):
 		invoice_ = Invoice()
 		with self.assertRaises(ValidationError):
