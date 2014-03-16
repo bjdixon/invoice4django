@@ -8,6 +8,7 @@ class Invoice(models.Model):
 	invoiced_customer_address = models.TextField()
 	vendors_name = models.TextField()
 	vendors_address = models.TextField()
+	net_amount = models.TextField()
 	tax_type = models.TextField()
 	tax_rate = models.TextField(default='0')
 	tax_amount = models.TextField()
@@ -38,6 +39,7 @@ class Line_item(models.Model):
 
 		invoice_.tax_amount = "{:.2f}".format(tax_amount)
 		invoice_.total_payable = "{:.2f}".format(total_payable)
+		invoice_.net_amount = "{:.2f}".format(total_payable - tax_amount)
 		invoice_.save()
 
 

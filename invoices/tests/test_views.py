@@ -404,6 +404,9 @@ class InvoiceAndCurrencyFieldsCanBeUpdated(TestCase):
 		self.assertEqual(updated_invoice.tax_type, 'TST')
 		self.assertEqual(updated_currency.currency_name, 'TST')
 
+	def test_update_invoice_without_adding_new_line_item(self):
+		pass
+
 
 class CalculateTotals(TestCase):
 
@@ -482,4 +485,32 @@ class CalculateTotals(TestCase):
 		self.assertEqual(correct_invoice.total_payable, '230.00')
 
 	def test_total_payable_and_tax_amount_are_displayed_after_POST(self):
-		pass
+		correct_invoice = Invoice.objects.create(
+			invoice_number='1234',
+			invoiced_customer_name='C Name',
+			invoiced_customer_address='123 customer address',
+			vendors_name='V Name',
+			vendors_address='123 vendors address',
+			tax_type='TST',
+			tax_rate='15'
+		)
+		new_currency = Currency.objects.create(
+			currency_symbol='$',
+			currency_name='CAD',
+			invoice=correct_invoice
+		)
+		Line_item.objects.create(
+			line_item='Line Item 1',
+			line_item_description='Description 1',
+			line_item_quantity='1',
+			line_item_price='100',
+			invoice=correct_invoice
+		)
+		response = self.client.get('/invoices/%d/' % (correct_invoice.id,))
+
+		self.assertContains(response, '123 customer address')
+		self.assertContains(response, 'Line Item 1')
+		self.assertContains(response, 'Net: $100.00')
+		self.assertContains(response, 'Tax: $15.00')
+		self.assertContains(response, 'Total Payable: $115.00')
+

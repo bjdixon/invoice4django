@@ -41,8 +41,8 @@
 			</tr>
 			{% endfor %}
 		</table>
-		<span id="net_total"></span><br>
-		<span id="tax_amount"></span><br>
-		<span id="total_payable"></span>
+		<span id="net_total">Net: {{ currency.currency_symbol }}{{ invoice.net_amount }}</span><br>
+		<span id="tax_amount">Tax: {{ currency.currency_symbol }}{{ invoice.tax_amount }}</span><br>
+		<span id="total_payable">Total Payable: {{ currency.currency_symbol }}{{ invoice.total_payable }}</span>
 	</body>
 </html>

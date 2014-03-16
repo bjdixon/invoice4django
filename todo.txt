@@ -4,7 +4,9 @@ Unit tests need refactoring. test_views is really long.
 
 FT breaks when invoice details are updated and a new line item isn't added. Unit tests need to be added for this and the ability to update the invoice without adding a new (blank) line item.
 
-make form look more like an invoice 
+form validation should be performed and also include checks that where expecting number values those are submitted. 
+
+make form look more like an invoice. inputs that expect numbers should be of type numberto help mobile users.
 
 Functionality to add: 
 delete line items, 
