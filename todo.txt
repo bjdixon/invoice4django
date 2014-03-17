@@ -1,4 +1,4 @@
-Unit test for checking tax amount and total payable are shown on the page after POST.
+Unit tests to be refactored so that empty invoices that are being created (but not for testing empty invoice purposes) are built using the util.py create_new_invoice function
 
 Unit tests need refactoring. test_views is really long.
 

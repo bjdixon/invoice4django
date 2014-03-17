@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 
 from invoices.views import home_page
 from invoices.models import Invoice, Line_item, Currency
-from .util import create_new_invoice
+from .util import create_new_invoice, create_new_line_item, create_POST_data
 
 class HomePageTest(TestCase):
 
@@ -28,88 +28,44 @@ class HomePageTest(TestCase):
 class InvoiceViewTest(TestCase):
 
 	def test_uses_invoice_template(self):
-		invoice_ = Invoice.objects.create()
+		invoice_ = create_new_invoice()
 		response = self.client.get('/invoices/%d/' % (invoice_.id,))
 		self.assertTemplateUsed(response, 'invoice.html')
 
 	def test_display_only_items_for_that_invoice(self):
-		correct_invoice = Invoice.objects.create()
-		Line_item.objects.create(
-			line_item='Line Item 1',
-			line_item_description='Description 1',
-			line_item_quantity='1',
-			line_item_price='100',
-			invoice=correct_invoice
-		)
-		Line_item.objects.create(
-			line_item='Line Item 2',
-			line_item_description='Description 2',
-			line_item_quantity='2',
-			line_item_price='10',
-			invoice=correct_invoice
-		)
-		other_invoice = Invoice.objects.create()
+		correct_invoice = create_new_invoice()
+		create_new_line_item(invoice_=correct_invoice)	
+		create_new_line_item(invoice_=correct_invoice, num='2')	
+		
+		other_invoice = create_new_invoice()
 
-		Line_item.objects.create(
-			line_item='Other Line Item 1',
-			line_item_description='Description 1',
-			line_item_quantity='1',
-			line_item_price='100',
-			invoice=other_invoice
-		)
-		Line_item.objects.create(
-			line_item='Other Line Item 2',
-			line_item_description='Description 2',
-			line_item_quantity='2',
-			line_item_price='10',
-			invoice=other_invoice
-		)
-
+		create_new_line_item(invoice_=other_invoice, num='3')
+		create_new_line_item(invoice_=other_invoice, num='4')
 		response = self.client.get('/invoices/%d/' % (correct_invoice.id,))
 		
 		self.assertContains(response, 'Line Item 1')
 		self.assertContains(response, 'Line Item 2')
 
-		self.assertNotContains(response, 'Other Line Item 1')
-		self.assertNotContains(response, 'Other Line Item 2')
+		self.assertNotContains(response, 'Line Item 3')
+		self.assertNotContains(response, 'Line Item 4')
 
 	def test_display_correct_details_for_that_invoice(self):
-		correct_invoice = Invoice.objects.create(
-			invoice_number='1234',
-			invoiced_customer_name='C Name',
-			invoiced_customer_address='123 customer address',
-			vendors_name='V Name',
-			vendors_address='123 vendors address',
-			tax_type='TST',
-			tax_rate='15'
-		)
-		Line_item.objects.create(
-			line_item='Line Item 1',
-			line_item_description='Description 1',
-			line_item_quantity='1',
-			line_item_price='100',
-			invoice=correct_invoice
-		)
-		other_invoice = Invoice.objects.create()
+		correct_invoice = create_new_invoice()
+		create_new_line_item(invoice_=correct_invoice)	
 
-		Line_item.objects.create(
-			line_item='Other Line Item 1',
-			line_item_description='Description 1',
-			line_item_quantity='1',
-			line_item_price='10',
-			invoice=other_invoice
-		)
+		other_invoice = create_new_invoice(alt=1)
+		create_new_line_item(invoice_=other_invoice, num='2')
 
 		response = self.client.get('/invoices/%d/' % (correct_invoice.id,))
 
 		self.assertContains(response, '123 customer address')
 		self.assertContains(response, 'Line Item 1')
 
-		self.assertNotContains(response, 'Other Line Item 1')
+		self.assertNotContains(response, 'Line Item 2')
 
 	def test_passes_correct_invoice_to_template(self):
-		other_invoice = Invoice.objects.create()
-		correct_invoice = Invoice.objects.create()
+		other_invoice = create_new_invoice()
+		correct_invoice = create_new_invoice(alt=1)
 		response = self.client.get('/invoices/%d/' % (correct_invoice.id,))
 		self.assertEqual(response.context['invoice'], correct_invoice)
 
@@ -117,60 +73,29 @@ class InvoiceViewTest(TestCase):
 class InvoiceAndLineItemModelTest(TestCase):
 
 	def test_saving_and_retrieving_line_items(self):
-		invoice_ = Invoice()
-		invoice_.save()
-		first_line_item = Line_item()
-		first_line_item.line_item = 'Item #1'
-		first_line_item.line_item_description = 'Description of Item #1'
-		first_line_item.line_item_quantity = '2'
-		first_line_item.line_item_price = '100'
-		first_line_item.invoice = invoice_
-		first_line_item.save()
-
-		second_line_item = Line_item()
-		second_line_item.line_item = 'Item #2'
-		second_line_item.line_item_description = 'Description of Item #2'
-		second_line_item.line_item_quantity = '1'
-		second_line_item.line_item_price = '10'
-		second_line_item.invoice = invoice_
-		second_line_item.save()
-
+		correct_invoice = create_new_invoice()
+		first_line_item = create_new_line_item(invoice_=correct_invoice)
+		second_line_item = create_new_line_item(invoice_=correct_invoice, num='2')
+		
 		saved_invoice = Invoice.objects.first()
-		self.assertEqual(saved_invoice, invoice_)
+		self.assertEqual(saved_invoice, correct_invoice)
 
 		saved_line_items = Line_item.objects.all()
 		self.assertEqual(saved_line_items.count(), 2)
 
 		first_saved_line_item = saved_line_items[0]
 		second_saved_line_item = saved_line_items[1]
-		self.assertEqual(first_saved_line_item.line_item, 'Item #1')
-		self.assertEqual(first_saved_line_item.invoice, invoice_)
-		self.assertEqual(second_saved_line_item.line_item, 'Item #2')
-		self.assertIn('10', second_saved_line_item.line_item_price)
-		self.assertEqual(second_saved_line_item.line_item_quantity, '1')
-		self.assertEqual(second_saved_line_item.line_item_description, 'Description of Item #2')
-		self.assertEqual(second_saved_line_item.invoice, invoice_)
+		self.assertEqual(first_saved_line_item.line_item, 'Line Item 1')
+		self.assertEqual(first_saved_line_item.invoice, correct_invoice)
+		self.assertEqual(second_saved_line_item.line_item, 'Line Item 2')
+		self.assertIn('200', second_saved_line_item.line_item_price)
+		self.assertEqual(second_saved_line_item.line_item_quantity, '2')
+		self.assertEqual(second_saved_line_item.line_item_description, 'Description 2')
+		self.assertEqual(second_saved_line_item.invoice, correct_invoice)
 
 	def test_saving_and_retrieving_invoices(self):
-		first_invoice = Invoice()
-		first_invoice.invoice_number = '1234'
-		first_invoice.invoiced_customer_name = 'C Name'
-		first_invoice.invoiced_customer_address = '123 customer address'
-		first_invoice.vendors_name = 'V Name'
-		first_invoice.vendors_address = '123 vendors address'
-		first_invoice.tax_type = 'TST'
-		first_invoice.tax_rate = '15'
-		first_invoice.save()
-
-		second_invoice = Invoice()
-		second_invoice.invoice_number = '4321'
-		second_invoice.invoiced_customer_name = 'Another C Name'
-		second_invoice.invoiced_customer_address = 'Another 123 customer address'
-		second_invoice.vendors_name = 'Another V Name'
-		second_invoice.vendors_address = 'Another 123 vendors address'
-		second_invoice.tax_type = 'TST'
-		second_invoice.tax_rate = '15'
-		second_invoice.save()
+		first_invoice = create_new_invoice()
+		second_invoice = create_new_invoice(alt=1)
 
 		saved_invoice = Invoice.objects.first()
 		self.assertEqual(saved_invoice, first_invoice)
@@ -187,29 +112,15 @@ class InvoiceAndLineItemModelTest(TestCase):
 		self.assertEqual(first_saved_invoice.vendors_address, '123 vendors address')
 		self.assertEqual(first_saved_invoice.tax_type, 'TST')
 		self.assertEqual(first_saved_invoice.tax_rate, '15')
-		self.assertEqual(second_saved_invoice.invoice_number, '4321')
-		self.assertEqual(second_saved_invoice.invoiced_customer_name, 'Another C Name')
+		self.assertEqual(second_saved_invoice.invoiced_customer_address, '123 another customer address')
+		self.assertEqual(second_saved_invoice.vendors_address, '123 another vendors address')
 
 class NewInvoiceTest(TestCase):
 
 	def test_saving_a_POST_request(self):
 		self.client.post(
 			'/invoices/new',
-			data={
-				'invoice_number': '1234',
-				'invoiced_customer_name': 'C Name',
-				'invoiced_customer_address': '123 address',
-				'vendors_name': 'V Name',
-				'vendors_address': '123 address',
-				'tax_type': 'TST',
-				'tax_rate': '15',
-				'currency_symbol': '$',
-				'currency_name': 'CAD',
-				'line_item': 'Item #1',
-				'line_item_description': 'Description of Item #1',
-				'line_item_quantity': '2',
-				'line_item_price': '100'
-			}
+			data=create_POST_data()
 		)
 		self.assertEqual(Line_item.objects.count(), 1)
 		new_line_item = Line_item.objects.first()
@@ -218,21 +129,7 @@ class NewInvoiceTest(TestCase):
 	def test_redirects_after_POST(self):
 		response = self.client.post(
 			'/invoices/new',
-			data={
-				'invoice_number': '1234',
-				'invoiced_customer_name': 'C Name',
-				'invoiced_customer_address': '123 address',
-				'vendors_name': 'V Name',
-				'vendors_address': '123 address',
-				'tax_type': 'TST',
-				'tax_rate': '15',
-				'currency_symbol': '$',
-				'currency_name': 'CAD',
-				'line_item': 'Item #1',
-				'line_item_description': 'Description of Item #1',
-				'line_item_quantity': '2',
-				'line_item_price': '100'
-			}
+			data=create_POST_data()
 		)
 		new_invoice = Invoice.objects.first()
 		self.assertRedirects(response, '/invoices/%d/' % (new_invoice.id,))
@@ -246,21 +143,7 @@ class NewItemTest(TestCase):
 
 		self.client.post(
 			'/invoices/%d/new_item' % (correct_invoice.id,),
-			data={
-				'invoice_number': '1234',
-				'invoiced_customer_name': 'C Name',
-				'invoiced_customer_address': '123 address',
-				'vendors_name': 'V Name',
-				'vendors_address': '123 address',
-				'tax_type': 'TST',
-				'tax_rate': '15',
-				'currency_symbol': '$',
-				'currency_name': 'CAD',
-				'line_item': 'Item #1',
-				'line_item_description': 'Description of Item #1',
-				'line_item_quantity': '2',
-				'line_item_price': '100'
-			}
+			data=create_POST_data()
 		)
 
 		self.assertEqual(Line_item.objects.count(), 1)
@@ -275,21 +158,7 @@ class NewItemTest(TestCase):
 
 		response = self.client.post(
 			'/invoices/%d/new_item' % (correct_invoice.id,),
-			data={
-				'invoice_number': '1234',
-				'invoiced_customer_name': 'C Name',
-				'invoiced_customer_address': '123 address',
-				'vendors_name': 'V Name',
-				'vendors_address': '123 address',
-				'tax_type': 'TST',
-				'tax_rate': '15',
-				'currency_symbol': '$',
-				'currency_name': 'CAD',
-				'line_item': 'Item #1',
-				'line_item_description': 'Description of Item #1',
-				'line_item_quantity': '2',
-				'line_item_price': '100'
-			}
+			data=create_POST_data()
 		)
 		self.assertRedirects(response, '/invoices/%d/' % (correct_invoice.id,))
 
@@ -313,21 +182,7 @@ class NewCurrencyTest(TestCase):
 
 		self.client.post(
 			'/invoices/new',
-			data={
-				'invoice_number': '1234',
-				'invoiced_customer_name': 'C Name',
-				'invoiced_customer_address': '123 address',
-				'vendors_name': 'V Name',
-				'vendors_address': '123 address',
-				'tax_type': 'TST',
-				'tax_rate': '15',
-				'currency_symbol': '$',
-				'currency_name': 'CAD',
-				'line_item': 'Item #1',
-				'line_item_description': 'Description of Item #1',
-				'line_item_quantity': '2',
-				'line_item_price': '100'
-			}
+			data=create_POST_data()
 		)
 
 		self.assertEqual(Currency.objects.count(), 1)
@@ -351,21 +206,7 @@ class InvoiceAndCurrencyFieldsCanBeUpdated(TestCase):
 	def test_invoice_fields_are_updated_on_POST(self):
 		self.client.post(
 			'/invoices/new',
-			data={
-				'invoice_number': '1234',
-				'invoiced_customer_name': 'C Name',
-				'invoiced_customer_address': '123 address',
-				'vendors_name': 'V Name',
-				'vendors_address': '123 address',
-				'tax_type': 'TST',
-				'tax_rate': '15',
-				'currency_symbol': '$',
-				'currency_name': 'CAD',
-				'line_item': 'Item #1',
-				'line_item_description': 'Description of Item #1',
-				'line_item_quantity': '2',
-				'line_item_price': '100'
-			}
+			data=create_POST_data()
 		)
 
 		self.assertEqual(Invoice.objects.count(), 1)
@@ -409,21 +250,7 @@ class InvoiceAndCurrencyFieldsCanBeUpdated(TestCase):
 	def test_update_invoice_without_adding_new_line_item(self):
 		self.client.post(
 			'/invoices/new',
-			data={
-				'invoice_number': '1234',
-				'invoiced_customer_name': 'C Name',
-				'invoiced_customer_address': '123 address',
-				'vendors_name': 'V Name',
-				'vendors_address': '123 address',
-				'tax_type': 'TST',
-				'tax_rate': '15',
-				'currency_symbol': '$',
-				'currency_name': 'CAD',
-				'line_item': 'Item #1',
-				'line_item_description': 'Description of Item #1',
-				'line_item_quantity': '2',
-				'line_item_price': '100'
-			}
+			data=create_POST_data()
 		)
 
 		self.assertEqual(Invoice.objects.count(), 1)
@@ -497,21 +324,7 @@ class CalculateTotals(TestCase):
 
 		self.client.post(
 			'/invoices/%d/new_item' % (correct_invoice.id,),
-			data={
-				'invoice_number': '1234',
-				'invoiced_customer_name': 'C Name',
-				'invoiced_customer_address': '123 address',
-				'vendors_name': 'V Name',
-				'vendors_address': '123 address',
-				'tax_type': 'TST',
-				'tax_rate': '15',
-				'currency_symbol': '$',
-				'currency_name': 'CAD',
-				'line_item': 'Item #1',
-				'line_item_description': 'Description of Item #1',
-				'line_item_quantity': '2',
-				'line_item_price': '100'
-			}
+			data=create_POST_data()
 		)
 
 		new_item = Line_item.objects.first()
@@ -522,21 +335,7 @@ class CalculateTotals(TestCase):
 
 		self.client.post(
 			'/invoices/%d/new_item' % (correct_invoice.id,),
-			data={
-				'invoice_number': '1234',
-				'invoiced_customer_name': 'C Name',
-				'invoiced_customer_address': '123 address',
-				'vendors_name': 'V Name',
-				'vendors_address': '123 address',
-				'tax_type': 'TST',
-				'tax_rate': '15',
-				'currency_symbol': '$',
-				'currency_name': 'CAD',
-				'line_item': 'Item #1',
-				'line_item_description': 'Description of Item #1',
-				'line_item_quantity': '2',
-				'line_item_price': '100'
-			}
+			data=create_POST_data()
 		)
 		correct_invoice = Invoice.objects.first()
 		self.assertEqual(correct_invoice.tax_amount, '30.00')
@@ -547,21 +346,7 @@ class CalculateTotals(TestCase):
 
 		self.client.post(
 			'/invoices/%d/new_item' % (correct_invoice.id,),
-			data={
-				'invoice_number': '1234',
-				'invoiced_customer_name': 'C Name',
-				'invoiced_customer_address': '123 address',
-				'vendors_name': 'V Name',
-				'vendors_address': '123 address',
-				'tax_type': 'TST',
-				'tax_rate': '15',
-				'currency_symbol': '$',
-				'currency_name': 'CAD',
-				'line_item': 'Item #1',
-				'line_item_description': 'Description of Item #1',
-				'line_item_quantity': '2',
-				'line_item_price': '100'
-			}
+			data=create_POST_data()
 		)
 		correct_invoice = Invoice.objects.first()		
 		self.assertEqual(correct_invoice.total_payable, '230.00')
