@@ -1,6 +1,4 @@
-Unit tests to be refactored so that empty invoices that are being created (but not for testing empty invoice purposes) are built using the util.py create_new_invoice function
-
-Unit tests need refactoring. test_views is really long.
+Unit tests need refactoring. test_views is still pretty long.
 
 FT breaks when invoice details are updated and a new line item isn't added. Unit tests need to be added for this and the ability to update the invoice without adding a new (blank) line item.
 
