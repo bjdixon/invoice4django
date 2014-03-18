@@ -50,10 +50,10 @@ def add_item(request, invoice_id):
 	currency_.currency_name = request.POST['currency_name'] or currency_.currency_name
 	currency_.save()
 	Line_item.objects.create(
-		line_item=request.POST['line_item'],
-		line_item_description=request.POST['line_item_description'],
-		line_item_quantity=request.POST['line_item_quantity'],
-		line_item_price=request.POST['line_item_price'],
+		line_item=request.POST.get('line_item', False), 
+		line_item_description=request.POST.get('line_item_description', False),
+		line_item_quantity=request.POST.get('line_item_quantity', False),
+		line_item_price=request.POST.get('line_item_price', False),
 		invoice=invoice_
 	)
 	return redirect('/invoices/%d/' % (invoice_.id,))

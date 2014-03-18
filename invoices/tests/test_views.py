@@ -246,7 +246,6 @@ class InvoiceAndCurrencyFieldsCanBeUpdated(TestCase):
 		self.assertEqual(updated_invoice.tax_type, 'TST')
 		self.assertEqual(updated_currency.currency_name, 'TST')
 
-	@skip
 	def test_update_invoice_without_adding_new_line_item(self):
 		self.client.post(
 			'/invoices/new',
@@ -272,16 +271,13 @@ class InvoiceAndCurrencyFieldsCanBeUpdated(TestCase):
 				'tax_type': 'TST',
 				'tax_rate': '15',
 				'currency_symbol': '$',
-				'currency_name': 'TST',
-				'line_item': 'Item #2',
-				'line_item_description': 'Description of Item #2',
-				'line_item_quantity': '2',
-				'line_item_price': '100'
+				'currency_name': 'TST'
 			}
 		)
 
 		self.assertEqual(Invoice.objects.count(), 1)
 		self.assertEqual(Currency.objects.count(), 1)
+		self.assertEqual(Line_item.objects.count(), 1)
 		
 		updated_invoice = Invoice.objects.get(id=new_invoice.id)
 		updated_currency = Currency.objects.get(invoice=updated_invoice)
@@ -290,32 +286,6 @@ class InvoiceAndCurrencyFieldsCanBeUpdated(TestCase):
 		self.assertEqual(updated_invoice.tax_type, 'TST')
 		self.assertEqual(updated_currency.currency_name, 'TST')
 
-		self.client.post(
-			'/invoices/%d/new_item' % (new_invoice.id,),
-			data={
-				'invoice_number': '4321',
-				'invoiced_customer_name': 'C Name',
-				'invoiced_customer_address': '123 address',
-				'vendors_name': 'V Name',
-				'vendors_address': '123 address',
-				'tax_type': 'TST',
-				'tax_rate': '15',
-				'currency_symbol': '$',
-				'currency_name': 'CST',
-			}
-		)
-
-		self.assertEqual(Invoice.objects.count(), 1)
-		self.assertEqual(Currency.objects.count(), 1)
-		
-		updated_invoice = Invoice.objects.get(id=new_invoice.id)
-		updated_currency = Currency.objects.get(invoice=updated_invoice)
-
-		self.assertEqual(updated_invoice.invoice_number, '4321')
-		self.assertEqual(updated_invoice.tax_type, 'TST')
-		self.assertEqual(updated_currency.currency_name, 'CST')
-
-		self.assertEqual(2, Line_item.objects.get().count())
 
 class CalculateTotals(TestCase):
 

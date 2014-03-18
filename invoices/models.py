@@ -28,7 +28,13 @@ class Line_item(models.Model):
 	line_item_total = models.TextField()
 
 	def save(self, *args, **kwargs):
-		self.full_clean(exclude=['line_item_total'])
+		#self.full_clean(exclude=['line_item_total'])
+		if self.line_item is False:
+			return
+		if self.line_item_price is False:
+			return
+		if self.line_item_quantity is False:
+			return
 		self.update_totals()
 		super().save(*args, **kwargs)
 

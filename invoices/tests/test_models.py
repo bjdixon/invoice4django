@@ -46,6 +46,17 @@ class CreatingAndRetrievingModels(TestCase):
 		self.assertEqual(second_saved_line_item.line_item_description, 'Description of Item #2')
 		self.assertEqual(second_saved_line_item.invoice, invoice_)
 
+	def test_line_items_dont_save_without_name_quantity_and_price(self):
+		invoice_ = Invoice()
+		first_line_item = Line_item(
+			line_item='Item 1',
+			line_item_description='Description 1',
+			invoice=invoice_
+		)
+
+		saved_line_items = Line_item.objects.all()
+		self.assertEqual(saved_line_items.count(), 0)
+
 	def test_saving_and_retrieving_invoices(self):
 		first_invoice = Invoice()
 		first_invoice.invoice_number = '1234'
@@ -135,7 +146,7 @@ class UpdatingModels(TestCase):
 
 
 class ModelValidation(TestCase):
-
+	
 	@skip
 	def test_cant_add_empty_invoice(self):
 		invoice_ = Invoice()

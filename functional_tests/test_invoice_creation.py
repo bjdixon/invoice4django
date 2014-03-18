@@ -195,12 +195,15 @@ class NewVisitorTest(FunctionalTest):
 		tax_type = self.browser.find_element_by_id('new_tax_type_input')
 		tax_type.send_keys('TAX')
 		currency_name = self.browser.find_element_by_id('new_currency_name_input')
-		currency_name.send_keys('USD\n')
+		currency_name.send_keys('USD')
+
+		self.browser.find_element_by_tag_name("button").click()
 
 		# when page refreshes he notices that these fields have been updated
-		tax_value = self.browser.find_element_by_id('new_tax_type_input').get_attribute('value')
+		tax_type = self.browser.find_element_by_id('new_tax_type_input')
+		tax_type_value = tax_type.get_attribute('value')
 		currency_value = self.browser.find_element_by_id('new_currency_name_input').get_attribute('value')
-		self.assertIn('TAX', tax_value)
+		self.assertIn('TAX', tax_type_value)
 		self.assertIn('USD', currency_value)
 		
 		# he notices that after each line item is added the net, tax and total 
