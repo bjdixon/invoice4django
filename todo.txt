@@ -1,11 +1,11 @@
 Unit tests need refactoring. test_views is still pretty long.
 Unit tests contain skips. Address when testing form validation.
 
-FT breaks when invoice details are updated and a new line item isn't added. Unit tests need to be added for this and the ability to update the invoice without adding a new (blank) line item.
+FT breaks when invoice details are updated and a new line item isn't added.
 
 form validation should be performed and also include checks that where expecting number values those are submitted. 
 
-make form look more like an invoice. inputs that expect numbers should be of type numberto help mobile users.
+make form look more like an invoice. inputs that expect numbers should be of type number to help mobile users.
 
 Functionality to add: 
 delete line items, 
