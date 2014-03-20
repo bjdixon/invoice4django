@@ -15,7 +15,7 @@ class Invoice(models.Model):
 	total_payable = models.TextField()
 
 	def save(self, *args, **kwargs):
-		#self.full_clean(exclude=['net_amount', 'tax_amount', 'total_payable'])
+		self.full_clean(exclude=['net_amount', 'tax_amount', 'total_payable'])
 		super().save(*args, **kwargs)
 
 

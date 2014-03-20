@@ -7,12 +7,13 @@ from unittest import skip
 
 from invoices.views import home_page
 from invoices.models import Invoice, Line_item, Currency
+from .util import create_new_invoice, create_new_line_item, create_POST_data
 
 
 class CreatingAndRetrievingModels(TestCase):
 
 	def test_saving_and_retrieving_line_items(self):
-		invoice_ = Invoice()
+		invoice_ = create_new_invoice()
 		invoice_.save()
 		first_line_item = Line_item()
 		first_line_item.line_item = 'Item #1'
@@ -47,7 +48,7 @@ class CreatingAndRetrievingModels(TestCase):
 		self.assertEqual(second_saved_line_item.invoice, invoice_)
 
 	def test_line_items_dont_save_without_name_quantity_and_price(self):
-		invoice_ = Invoice()
+		invoice_ = create_new_invoice()
 		first_line_item = Line_item(
 			line_item='Item 1',
 			line_item_description='Description 1',
@@ -124,7 +125,7 @@ class UpdatingModels(TestCase):
 		self.assertEqual(edited_invoice.vendors_name, updated_invoice.vendors_name)
 
 	def test_currency_fields_can_be_overwritten(self):
-		invoice_ = Invoice.objects.create()
+		invoice_ = create_new_invoice()
 		currency_ = Currency.objects.create(
 			currency_symbol='$',
 			currency_name='CAD',
@@ -147,7 +148,6 @@ class UpdatingModels(TestCase):
 
 class ModelValidation(TestCase):
 	
-	@skip
 	def test_cant_add_empty_invoice(self):
 		invoice_ = Invoice()
 		with self.assertRaises(ValidationError):

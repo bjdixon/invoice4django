@@ -1,9 +1,7 @@
-<html>
-	<head>
-		<title>Invoices</title>
-	</head>
-	<body>
-		<h1>Start a new Invoice</h1>
+{% extends 'base.html' %}
+{% block page_title %}Invoices{% endblock %}
+{% block body_content %}
+	<h1>Start a new Invoice</h1>
 		<form method="POST" action="/invoices/new">
 			<input id="new_invoice_number_input" name="invoice_number" placeholder="Enter an invoice number" /><br>
 			<input id="new_invoiced_customer_name_input" name="invoiced_customer_name" placeholder="Enter customer name" /><br>
@@ -22,10 +20,14 @@
 			<button type="submit">Save</button>
 			{% csrf_token %}
 		</form>
+		{% if error %}
+			<div class="form-group has-error">
+				<span class="help-block">{{ error }}</span>
+			</div>
+		{% endif %}
 		<table id="invoice_table">
 			{% for line_item in line_items %}
 			<tr><td>Line {{ forloop.counter }}: {{ line_item.line_item }}</td></tr>
 			{% endfor %}
 		</table>
-	</body>
-</html>
+{% endblock %}

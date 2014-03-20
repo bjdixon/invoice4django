@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.core.exceptions import ValidationError
 
 from invoices.models import Invoice, Line_item, Currency
 
@@ -14,15 +15,19 @@ def view_invoice(request, invoice_id):
 	return render(request, 'invoice.html', {'invoice': invoice_, 'items': items, 'currency': currency_})
 
 def new_invoice(request):
-	invoice_ = Invoice.objects.create(
-		invoice_number = request.POST['invoice_number'],
-		invoiced_customer_name = request.POST['invoiced_customer_name'],
-		invoiced_customer_address = request.POST['invoiced_customer_address'],
-		vendors_name = request.POST['vendors_name'],
-		vendors_address = request.POST['vendors_address'],
-		tax_type = request.POST['tax_type'],
-		tax_rate = request.POST['tax_rate']
-	)
+	try: 
+		invoice_ = Invoice.objects.create(
+			invoice_number = request.POST['invoice_number'],
+			invoiced_customer_name = request.POST['invoiced_customer_name'],
+			invoiced_customer_address = request.POST['invoiced_customer_address'],
+			vendors_name = request.POST['vendors_name'],
+			vendors_address = request.POST['vendors_address'],
+			tax_type = request.POST['tax_type'],
+			tax_rate = request.POST['tax_rate']
+		)
+	except ValidationError:
+		error_text = "You can't save an empty invoice"
+		return render(request, 'home.html', {"error": error_text})	
 	Line_item.objects.create(
 		line_item=request.POST['line_item'],
 		line_item_description=request.POST['line_item_description'],

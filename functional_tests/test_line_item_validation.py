@@ -12,7 +12,7 @@ class InvoiceValidationTest(FunctionalTest):
 		self.browser.find_element_by_id('new_line_item_quantity_input').send_keys('\n')
 
 		error = self.browser.find_element_by_css_selector('.has-error')
-		self.assertEqual(error.text, "All invoice details need to be filled out")
+		self.assertEqual(error.text, "You can't save an empty invoice")
 
 		# he adds invoice details
 		invoice_number = self.browser.find_element_by_id('new_invoice_number_input')
@@ -42,9 +42,9 @@ class InvoiceValidationTest(FunctionalTest):
 		currency_name.send_keys('CAD')
 		
 		# he adds a line item
-		self.browser.find('new_line_item_input').send_keys('Item 1')
-		self.browser.find('new_line_item_description_input').send_keys('Description 1')
-		self.browser.find('new_line_item_quantity_input').send_keys('2\n')
+		self.browser.find_element_by_id('new_line_item_input').send_keys('Item 1')
+		self.browser.find_element_by_id('new_line_item_description_input').send_keys('Description 1')
+		self.browser.find_element_by_id('new_line_item_quantity_input').send_keys('2\n')
 
 		self.check_for_row_in_invoice_table('Item 1')
 

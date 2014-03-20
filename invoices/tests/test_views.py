@@ -3,6 +3,7 @@ from django.test import TestCase
 from unittest import skip
 from django.http import HttpRequest
 from django.template.loader import render_to_string
+from django.utils.html import escape
 
 from invoices.views import home_page
 from invoices.models import Invoice, Line_item, Currency
@@ -134,12 +135,30 @@ class NewInvoiceTest(TestCase):
 		new_invoice = Invoice.objects.first()
 		self.assertRedirects(response, '/invoices/%d/' % (new_invoice.id,))
 
+	def test_validation_errors_sent_back_to_home_page_template(self):
+		response = self.client.post(
+			'/invoices/new',
+			data={
+				'invoice_number': '',
+				'invoiced_customer_name': '',
+				'invoiced_customer_address': '',
+				'vendors_name': '',
+				'vendors_address': '',
+				'tax_type': '',
+				'tax_rate': '',
+			}
+		)
+		self.assertEqual(Invoice.objects.all().count(), 0)
+		self.assertTemplateUsed(response, 'home.html')
+		expected_error = escape("You can't save an empty invoice")
+		self.assertContains(response, expected_error)
+
 
 class NewItemTest(TestCase):
 
 	def test_can_save_a_POST_request_to_an_existing_invoice(self):
-		other_invoice = Invoice.objects.create()
-		correct_invoice = Invoice.objects.create()
+		other_invoice = create_new_invoice()
+		correct_invoice = create_new_invoice()
 
 		self.client.post(
 			'/invoices/%d/new_item' % (correct_invoice.id,),
@@ -153,8 +172,8 @@ class NewItemTest(TestCase):
 		self.assertEqual(new_item.invoice, correct_invoice)
 
 	def test_redirects_to_invoice_view(self):
-		other_invoice = Invoice.objects.create()
-		correct_invoice = Invoice.objects.create()
+		other_invoice = create_new_invoice()
+		correct_invoice = create_new_invoice()
 
 		response = self.client.post(
 			'/invoices/%d/new_item' % (correct_invoice.id,),
@@ -165,7 +184,7 @@ class NewItemTest(TestCase):
 class NewCurrencyTest(TestCase):
 
 	def test_can_save_new_currency(self):
-		invoice_ = Invoice.objects.create()
+		invoice_ = create_new_invoice()
 		new_currency = Currency.objects.create(
 			currency_symbol='$',
 			currency_name='CAD',
@@ -178,7 +197,7 @@ class NewCurrencyTest(TestCase):
 		self.assertEqual(new_currency.invoice, invoice_)
 
 	def test_can_save_a_new_currency_in_a_POST_request(self):
-		invoice_ = Invoice.objects.create()
+		invoice_ = create_new_invoice()
 
 		self.client.post(
 			'/invoices/new',
@@ -191,7 +210,7 @@ class NewCurrencyTest(TestCase):
 		self.assertEqual(new_currency.currency_name, 'CAD')
 
 	def test_passes_correct_currency_to_template(self):
-		correct_invoice = Invoice.objects.create()
+		correct_invoice = create_new_invoice()
 		correct_currency = Currency.objects.create(
 			currency_symbol='$',
 			currency_name='CAD',
@@ -290,7 +309,7 @@ class InvoiceAndCurrencyFieldsCanBeUpdated(TestCase):
 class CalculateTotals(TestCase):
 
 	def test_line_item_totals_are_calculated_correctly(self):
-		correct_invoice = Invoice.objects.create()
+		correct_invoice = create_new_invoice()
 
 		self.client.post(
 			'/invoices/%d/new_item' % (correct_invoice.id,),
@@ -301,7 +320,7 @@ class CalculateTotals(TestCase):
 		self.assertEqual(new_item.line_item_total, '200.00')
 		
 	def test_tax_is_calculated_correctly(self):
-		correct_invoice = Invoice.objects.create()
+		correct_invoice = create_new_invoice()
 
 		self.client.post(
 			'/invoices/%d/new_item' % (correct_invoice.id,),
@@ -312,7 +331,7 @@ class CalculateTotals(TestCase):
 		
 
 	def test_total_payable_is_calculated_correctly(self):
-		correct_invoice = Invoice.objects.create()
+		correct_invoice = create_new_invoice()
 
 		self.client.post(
 			'/invoices/%d/new_item' % (correct_invoice.id,),

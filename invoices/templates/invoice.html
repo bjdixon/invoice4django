@@ -1,7 +1,6 @@
-<html>
-	<head>
-		<title>Invoices</title>
-	</head>
+{% extends 'base.html' %}
+{% block page_title %}Invoice{% endblock %}
+{% block body_content %}
 	<body>
 		<h1>Invoices</h1>
 		<form method="POST" action="/invoices/{{ invoice.id }}/new_item">
@@ -44,5 +43,4 @@
 		<span id="net_total">Net: {{ currency.currency_symbol }}{{ invoice.net_amount }}</span><br>
 		<span id="tax_amount">Tax: {{ currency.currency_symbol }}{{ invoice.tax_amount }}</span><br>
 		<span id="total_payable">Total Payable: {{ currency.currency_symbol }}{{ invoice.total_payable }}</span>
-	</body>
-</html>
+{% endblock %}
