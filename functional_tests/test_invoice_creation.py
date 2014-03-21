@@ -209,7 +209,7 @@ class NewVisitorTest(FunctionalTest):
 		# he notices that after each line item is added the net, tax and total 
 		# payable amounts increase by the correct amount
 		net_total = self.browser.find_element_by_id('net_total')
-		self.assertIn(net_total, '10')
+		self.assertEqual(net_total, '10')
 
 		tax_value = self.browser.find_element_by_id('tax_amount')
 		self.assertEqual(tax_value, '2.50')

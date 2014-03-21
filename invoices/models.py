@@ -39,6 +39,8 @@ class Line_item(models.Model):
 		super().save(*args, **kwargs)
 
 	def update_totals(self):
+		if self.line_item_price == '' or self.line_item_quantity == '':
+			return
 		self.line_item_total = "{:.2f}".format(float(self.line_item_price) * float(self.line_item_quantity))
 		invoice_ = self.invoice
 		tax_amount = float(self.line_item_total) * float(invoice_.tax_rate)/100
