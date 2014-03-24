@@ -8,4 +8,4 @@ install:
  - "pip install ."
  - "pip install -r requirements.txt"
 script: 
- - python manage.py test invoices functional_tests
+ - python manage.py test invoices
