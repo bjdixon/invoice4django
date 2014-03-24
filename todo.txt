@@ -1,11 +1,8 @@
 Unit tests need refactoring. test_views is still pretty long.
-Unit tests contain skips. Address when testing form validation.
+
+when some data has been entered for a line item but not all name, quantity, price are included send back an error message and repopulate inputs. right now incomplete line items are discarded with no feedback to the user.
 
 if tax rate is updated but no new line item is added the invoice doesn't recalculate. Need to fix and test this.
-
-empty line items being added in FTs
-
-FT breaks when invoice details are updated and a new line item isn't added.
 
 form validation should be performed and also include checks that where expecting number values those are submitted. 
 
