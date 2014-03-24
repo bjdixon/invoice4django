@@ -208,14 +208,14 @@ class NewVisitorTest(FunctionalTest):
 		
 		# he notices that after each line item is added the net, tax and total 
 		# payable amounts increase by the correct amount
-		net_total = self.browser.find_element_by_id('net_total')
-		self.assertEqual(net_total, '10')
+		net_total = self.browser.find_element_by_id('net_total').text
+		self.assertIn('10', net_total)
 
-		tax_value = self.browser.find_element_by_id('tax_amount')
-		self.assertEqual(tax_value, '2.50')
+		tax_value = self.browser.find_element_by_id('tax_amount').text
+		self.assertIn('2.50', tax_value)
 
-		total_payable = self.browser.find_element_by_id('total_payable')
-		self.assertEqual(total_payable, '12.50')
+		total_payable = self.browser.find_element_by_id('total_payable').text
+		self.assertIn('12.50', total_payable)
 
 		# he notices that he can click a button to save the invoice as a pdf 
 

@@ -44,14 +44,16 @@ class InvoiceValidationTest(FunctionalTest):
 		# he adds a line item
 		self.browser.find_element_by_id('new_line_item_input').send_keys('Item 1')
 		self.browser.find_element_by_id('new_line_item_description_input').send_keys('Description 1')
-		self.browser.find_element_by_id('new_line_item_quantity_input').send_keys('2\n')
+		self.browser.find_element_by_id('new_line_item_quantity_input').send_keys('2')
+		self.browser.find_element_by_id('new_line_item_price_input').send_keys('100.00')
 
-		self.check_for_row_in_invoice_table('Item 1')
+		self.browser.find_element_by_tag_name('button').click()
+		self.check_for_row_in_invoice_table('Line 1: Item 1')
 
 		# just to see he tries to enter another empty line item
 		self.browser.find_element_by_id('new_line_item_quantity_input').send_keys('\n')
 
 		# nothing happens. nothing is updated and no error received
-		self.check_for_row_in_invoice_table('Item 1')
+		self.check_for_row_in_invoice_table('Line 1: Item 1')
 
 
