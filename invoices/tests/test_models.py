@@ -145,6 +145,21 @@ class UpdatingModels(TestCase):
 		self.assertEqual(edited_currency.invoice, invoice_)
 		self.assertEqual(edited_currency.currency_name, 'TST')
 
+	def test_net_and_tax_are_correctly_calculated(self):
+		invoice_ = create_new_invoice()
+
+		first_line_item = create_new_line_item(invoice_=invoice_, num=1)
+		temp_invoice = Invoice.objects.first()
+		self.assertEqual(temp_invoice.net_amount, '100.00')
+		self.assertEqual(temp_invoice.tax_amount, '15.00')
+		self.assertEqual(temp_invoice.total_payable, '115.00')
+
+		second_line_item = create_new_line_item(invoice_=invoice_, num=2)
+
+		temp_invoice = Invoice.objects.first()
+		self.assertEqual(temp_invoice.tax_amount, '75.00')
+		self.assertEqual(temp_invoice.total_payable, '575.00')
+		self.assertEqual(temp_invoice.net_amount, '500.00')
 
 class ModelValidation(TestCase):
 	
