@@ -14,9 +14,11 @@ class Invoice(models.Model):
 	tax_amount = models.TextField()
 	total_payable = models.TextField()
 
-	def save(self, *args, **kwargs):
+	def save(self, run=False, *args, **kwargs):
 		self.full_clean(exclude=['net_amount', 'tax_amount', 'total_payable'])
 		super().save(*args, **kwargs)
+		if not run:
+			update_totals(self)
 
 
 class Line_item(models.Model):
@@ -36,21 +38,22 @@ class Line_item(models.Model):
 			return
 		self.line_item_total = "{:.2f}".format(float(self.line_item_price) * float(self.line_item_quantity))
 		super().save(*args, **kwargs)
-		self.update_totals()
+		update_totals(self.invoice)
 	
-	def update_totals(self):
-		invoice_ = self.invoice
-		net_amount, tax_amount, total_payable = (0, 0, 0)
-		for item in Line_item.objects.filter(invoice=invoice_):
-			net_amount += float(item.line_item_total)
-		tax_rate = float(invoice_.tax_rate)/100
-		invoice_.tax_amount = "{:.2f}".format(tax_rate * net_amount)
-		invoice_.total_payable = "{:.2f}".format(net_amount + (net_amount * tax_rate))
-		invoice_.net_amount = "{:.2f}".format(net_amount)
-		invoice_.save()
 
 class Currency(models.Model):
 	currency_symbol = models.TextField()
 	currency_name = models.TextField()
 	invoice = models.ForeignKey(Invoice)
+
+
+def update_totals(self=Invoice):
+	net_amount, tax_amount, total_payable = (0, 0, 0)
+	for item in Line_item.objects.filter(invoice=self):
+		net_amount += float(item.line_item_total)
+	tax_rate = float(self.tax_rate)/100
+	self.tax_amount = "{:.2f}".format(tax_rate * net_amount)
+	self.total_payable = "{:.2f}".format(net_amount + (net_amount * tax_rate))
+	self.net_amount = "{:.2f}".format(net_amount)
+	self.save(run=True)
 

@@ -217,6 +217,21 @@ class NewVisitorTest(FunctionalTest):
 		total_payable = self.browser.find_element_by_id('total_payable').text
 		self.assertIn('12.50', total_payable)
 
+		# he realises that he put 25% for tax instead of 20%. He corrects that
+		tax_rate = self.browser.find_element_by_id('new_tax_rate_input')
+		tax_rate.clear()
+		tax_rate.send_keys('20\n')
+		
+		# after hitting enter he sees the value has remained 20% in the input box
+		tax_rate = self.browser.find_element_by_id('new_tax_rate_input')
+		self.assertEqual(tax_rate.get_attribute('value'), '20')
+
+		# and that the tax amount and total payable have been updated
+		tax_value = self.browser.find_element_by_id('tax_amount').text
+		self.assertEqual(tax_value, 'Tax: $2.00')
+
+		total_payable = self.browser.find_element_by_id('total_payable').text
+		self.assertEqual(total_payable, 'Total Payable: $12.00')
 		# he notices that he can click a button to save the invoice as a pdf 
 
 

@@ -370,3 +370,36 @@ class CalculateTotals(TestCase):
 		self.assertContains(response, 'Tax: $15.00')
 		self.assertContains(response, 'Total Payable: $115.00')
 
+	def test_total_payable_and_tax_amount_are_updated_after_changes_to_invoice(self):
+		invoice_ = create_new_invoice()
+		line_item = create_new_line_item(invoice_=invoice_)
+		
+		self.client.post(
+			'/invoices/new',
+			data=create_POST_data()
+		)
+		
+		invoice_ = Invoice.objects.first()
+		self.assertEqual(invoice_.tax_rate, '15')
+		self.assertEqual(invoice_.total_payable, '115.00')
+
+		self.client.post(
+			'/invoices/%d/new_item' % (invoice_.id,),
+			data={
+				'invoice_number': '1234',
+				'invoiced_customer_name': 'C Name',
+				'invoiced_customer_address': '123 address',
+				'vendors_name': 'V Name',
+				'vendors_address': '123 address',
+				'tax_type': 'TST',
+				'tax_rate': '20',
+				'currency_symbol': '$',
+				'currency_name': 'TST'
+			}
+		)
+
+		invoice_ = Invoice.objects.first()
+		self.assertEqual(invoice_.tax_rate, '20')
+		self.assertEqual(invoice_.total_payable, '120.00')
+
+

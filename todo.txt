@@ -1,8 +1,6 @@
 Unit tests need refactoring. test_views is still pretty long.
 
-when some data has been entered for a line item but not all name, quantity, price are included send back an error message and repopulate inputs. right now incomplete line items are discarded with no feedback to the user.
-
-if tax rate is updated but no new line item is added the invoice doesn't recalculate. Need to fix and test this.
+when some data has been entered for a line item but not all name, quantity, price are included send back an error message and repopulate inputs. right now incomplete line items are discarded with no feedback to the user. -- Going to do client side form validation with javascript.
 
 form validation should be performed and also include checks that where expecting number values those are submitted. 
 
