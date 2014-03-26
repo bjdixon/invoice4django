@@ -4,5 +4,8 @@ python:
  - "3.3"
 install:
  - "pip install -r requirements.txt"
+ - "pip install coveralls"
 script: 
- - python manage.py test invoices
+ - coverage run --python manage.py test invoices
+after_success:
+ - coveralls
