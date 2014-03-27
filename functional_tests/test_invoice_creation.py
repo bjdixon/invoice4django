@@ -14,112 +14,142 @@ class NewVisitorTest(FunctionalTest):
 		# he notices the page title and header mention Invoices
 		self.assertIn('Invoices', self.browser.title)
 		header_text = self.browser.find_element_by_tag_name('h1').text
-		self.assertIn('Invoice', header_text)
+		self.assertEqual('Create New Invoice', header_text)
 
 		# he is invited to enter an invoice number
-		invoice_number = self.browser.find_element_by_id('new_invoice_number_input')
+		invoice_number = self.browser.find_element_by_id('invoice_number_input')
 		invoice_number.send_keys('1234')
 
-		# he is invited to enter a customer and their address
-		customer_name = self.browser.find_element_by_id('new_invoiced_customer_name_input')
+		# and any comments (like payment details or terms)
+		invoice_comments = self.browser.find_element_by_id('invoice_comments_input')
+		invoice_comments.send_keys('Please pay cash money within 30 days')
+
+		# he clicks the continue button to, well continue
+		self.browser.find_element_by_tag('button').click()
+
+		# he sees that this page is to enter his (vendor) details
+		header_text = self.browser.find_element_by_tag_name('h1').text
+		self.assertEqual(header_text, 'Enter your details')
+
+		# As this is his first visit no details are auto populated for him.
+		# He has to fill out the whole form.
+		vendor_name = self.browser.find_element_by_id('vendor_name_input')
+		vendor_name.send_keys('JolbyTech')
+		vendor_street_address = self.browser.find_element_by_id('vendor_street_address_input')
+		vendor_street_address.send_keys('123 vendor street')
+		vendor_city = self.browser.find_element_by_id('vendor_city_input')
+		vendor_city.send_keys('Jolbyville')
+		vendor_state = self.browser.find_element_by_id('vendor_state_input')
+		vendor_state.send_keys('ON')
+		vendor_post_code = self.browser.find_element_by_id('vendor_post_code_input')
+		vendor_post_code.send_keys('1234')
+		vendor_phone_number = self.browser.find_element_by_id('vendor_phone_number_input')
+		vendor_phone_number.send_keys('1 123 123 1234')
+		vendor_email_address = self.browser.find_element_by_id('vendor_email_address_input')
+		vendor_email_address.send_keys('jolby@jolbytech.com')
+
+		# checking his work and seeing it is good he clicks continue
+		self.browser.find_element_by_tag_name('button').click()
+
+		# The next page that loads asks him to enter his customer's details
+		header_text = self.browser.find_element_by_tag_name('h1').text
+		self.assertEqual(header_text, "Enter your customer's details")
+
+		# following this simple instruction he fills out the form
+		customer_name = self.browser.find_element_by_id('customer_name_input')
 		customer_name.send_keys('Mr Customer')
+		customer_street_address = self.browser.find_element_by_id('customer_street_address_input')
+		customer_street_address.send_keys('123 customer street')
+		customer_city = self.browser.find_element_by_id('customer_city_input')
+		customer_city.send_keys('Customerton')
+		customer_state = self.browser.find_element_by_id('customer_state_input')
+		customer_state.send_keys('ON')
+		customer_post_code = self.browser.find_element_by_id('customer_post_code_input')
+		customer_post_code.send_keys('1234')
+		customer_phone_number = self.browser.find_element_by_id('customer_phone_number_input')
+		customer_phone_number.send_keys('1 123 123 1234')
+		customer_email_address = self.browser.find_element_by_id('vendor_email_address_input')
+		customer_email_address.send_keys('customer@email.com')
 
-		customer_address = self.browser.find_element_by_id('new_invoiced_customer_address_input')
-		customer_address.send_keys('123 street name, anytown')
+		# with that complete he clicks on continue
+		self.browser.find_element_by_tag_name('button').click()
 
-		# he is invited to enter his own name and address
-		vendors_name = self.browser.find_element_by_id('new_vendors_name_input')
-		vendors_name.send_keys('Jolby')
+		# Jolby now sees all the data he's entered shown on the invoice
+		invoice_number = self.browser.find_element_by_id('invoice_number').text
+		self.assertEqual(invoice_number, '1234')
+		invoice_comments = self.browser.find_element_by_id('invoice_comments').text
+		self.assertEqual(invoice_comments, 'Please pay cash money within 30 days')
+		
+		customer_name = self.browser.find_element_by_id('customer_name').text
+		self.assertEqual(customer_name, 'Mr Customer')
+		customer_city = self.browser.find_element_by_id('customer_city').text
+		self.assertEqual(customer_city, 'Customerton')
+		customer_email = self.browser.find_element_by_id('customer_email').text
+		self.assertEqual(customer_email, 'customer@email.com')
 
-		vendors_address = self.browser.find_element_by_id('new_vendors_address_input')
-		vendors_address.send_keys('123 jolby street, jolbyville')
+		vendor_name = self.browser.find_element_by_id('vendor_name').text
+		self.assertEqual(vendor_name, 'JolbyTech')
+		vendor_state = self.browser.find_element_by_id('vendor_state').text
+		self.assertEqual(vendor_state, 'ON')
+		vendor_phone_number = self.browser.find_element_by_id('vendor_phone_number').text
+		self.assertEqual(vendor_phone_number, '1 123 123 1234')
 
-		# he is invited to add a tax type and rate
-		tax_type = self.browser.find_element_by_id('new_tax_type_input')
-		tax_type.send_keys('AST')
+		# This quick check satisfies that the details are as he entered them.
+		# He also notices a link to edit vendor details and another to edit 
+		# customer details. 
+		edit_customer_link = self.browser.find_element_by_link_text('Edit customer details').text
+		self.assertEqual(edit_customer_link, 'Edit customer details')
 
-		tax_rate = self.browser.find_element_by_id('new_tax_rate_input')
-		tax_rate.send_keys('25')
-
-		# he then enter currency details
-		currency_symbol = self.browser.find_element_by_id('new_currency_symbol_input')
-		currency_symbol.send_keys('$')
-		currency_name = self.browser.find_element_by_id('new_currency_name_input')
-		currency_name.send_keys('CAD')
-
+		edit_vendor_link = self.browser.find_element_by_link_text('Edit your details').text
+		self.assertEqual(edit_vendor_link, 'Edit your details')
+		
+		# Jolby now sees an area to enter line items.
 		# he is invited to add a line item, description, price and quantity
 		line_item_input = self.browser.find_element_by_id('new_line_item_input')
 		line_item_input.send_keys('Item #1')
 		line_item_description_input = self.browser.find_element_by_id('new_line_item_description_input')
 		line_item_description_input.send_keys('Description for Item #1')
 		line_item_quantity_input = self.browser.find_element_by_id('new_line_item_quantity_input')
-		line_item_quantity_input.send_keys('2')
+		line_item_quantity_input.send_keys('1')
 		line_item_price_input = self.browser.find_element_by_id('new_line_item_price_input')
-		line_item_price_input.send_keys('25')
+		line_item_price_input.send_keys('100')
 
-		line_item_input.send_keys(Keys.ENTER)
+		# He clicks the Add button to save the line item to the invoice
+		self.browser.find_element_by_tag_name('button').click()
 
 		# After hitting enter he notices the page updates showing the entered values
-		# and new inputs for another line item
-		jolby_invoice_url = self.browser.current_url
-		self.assertRegex(jolby_invoice_url, '/invoices/.+')
+		# and new inputs for another line item. His invoice details remain unchanged.
 
-		invoice_number = self.browser.find_element_by_id('new_invoice_number_input')
-		self.assertIn(invoice_number.get_attribute('value'), '1234')
+		invoice_number = self.browser.find_element_by_id('invoice_number').text
+		self.assertEqual(invoice_number, '1234')
 
-		customer_address = self.browser.find_element_by_id('new_invoiced_customer_address_input')
-		self.assertIn('123 street name, anytown', customer_address.get_attribute('value'))
+		vendor_name = self.browser.find_element_by_id('vendor_name')
+		self.assertEqual(vendor_name, 'JolbyTech')
 
-		vendors_name = self.browser.find_element_by_id('new_vendors_name_input')
-		self.assertIn('Jolby', vendors_name.get_attribute('value'))
-
-		vendors_address = self.browser.find_element_by_id('new_vendors_address_input')
-		self.assertIn('123 jolby street, jolbyville', vendors_address.get_attribute('value'))
-
-		tax_type = self.browser.find_element_by_id('new_tax_type_input')
-		self.assertIn('AST', tax_type.get_attribute('value'))
-
-		tax_rate = self.browser.find_element_by_id('new_tax_rate_input')
-		self.assertIn('25', tax_rate.get_attribute('value'))
-
-		self.check_for_row_in_invoice_table('Line 1: Item #1')
-
-		# He sees that he can add another line item and does so
-		line_item_input = self.browser.find_element_by_id('new_line_item_input')
+		# He enters details for his another line item 
+		line_item_input = self.browser.find_element_by_id('line_item_input')
 		line_item_input.send_keys('Item #2')
-		line_item_description_input = self.browser.find_element_by_id('new_line_item_description_input')
+		line_item_description_input = self.browser.find_element_by_id('line_item_description_input')
 		line_item_description_input.send_keys('Description for Item #2')
-		line_item_quantity_input = self.browser.find_element_by_id('new_line_item_quantity_input')
-		line_item_quantity_input.send_keys('1')
+		line_item_quantity_input = self.browser.find_element_by_id('line_item_quantity_input')
+		line_item_quantity_input.send_keys('2')
 
-		line_item_price_input = self.browser.find_element_by_id('new_line_item_price_input')
-		line_item_price_input.send_keys('125')
+		line_item_price_input = self.browser.find_element_by_id('line_item_price_input')
+		line_item_price_input.send_keys('200')
 
-		line_item_price_input.send_keys(Keys.ENTER)
+		# He clicks the Add button again
+		self.browser.find_element_by_tag_name('button').click()
 
 		# after the page refreshes both items are now visible
 		self.check_for_row_in_invoice_table('Line 1: Item #1')
 		self.check_for_row_in_invoice_table('Line 2: Item #2')
 
-		# The invoice details are stil visible
+		# He notices a link that he can click to delete a line item
 
-		invoice_number = self.browser.find_element_by_id('new_invoice_number_input')
-		self.assertIn('1234', invoice_number.get_attribute('value'))
 
-		customer_address = self.browser.find_element_by_id('new_invoiced_customer_address_input')
-		self.assertIn('123 street name, anytown', customer_address.get_attribute('value'))
+		# He decides to try it out by clicking the delete link next to Item 2
 
-		vendors_name = self.browser.find_element_by_id('new_vendors_name_input')
-		self.assertIn('Jolby', vendors_name.get_attribute('value'))
 
-		vendors_address = self.browser.find_element_by_id('new_vendors_address_input')
-		self.assertIn('123 jolby street, jolbyville', vendors_address.get_attribute('value'))
-
-		tax_type = self.browser.find_element_by_id('new_tax_type_input')
-		self.assertIn('AST', tax_type.get_attribute('value'))
-
-		tax_rate = self.browser.find_element_by_id('new_tax_rate_input')
-		self.assertIn('25', tax_rate.get_attribute('value'))
 
 		# A new user, Francis visits the site
 
@@ -128,112 +158,20 @@ class NewVisitorTest(FunctionalTest):
 		self.browser.quit()
 		self.browser = webdriver.Firefox()
 
-		# Francis visits the home page. There's no sign of Jolby's list
+		# Francis visits the home page. There's no sign of Jolby's invoice 
 		self.browser.get(self.live_server_url)
 		page_text = self.browser.find_element_by_tag_name('body').text
 		self.assertNotIn('Jolby', page_text)
-		self.assertNotIn('Line 1: Item #1', page_text)
-		self.assertNotIn('Line 2: Item #2', page_text)
+		self.assertNotIn('1234', page_text)
+		self.assertNotIn('Please pay cash money within 30 days', page_text)
 
 		# Francis starts a new invoice 
 		# he is invited to enter an invoice number
-		invoice_number = self.browser.find_element_by_id('new_invoice_number_input')
+		invoice_number = self.browser.find_element_by_id('invoice_number_input')
 		invoice_number.send_keys('4321')
 
-		# he is invited to enter a customer and their address
-		customer_name = self.browser.find_element_by_id('new_invoiced_customer_name_input')
-		customer_name.send_keys('Mrs Customer')
 
-		customer_address = self.browser.find_element_by_id('new_invoiced_customer_address_input')
-		customer_address.send_keys('123 street name, anytown')
+		# He sees a link to download the invoice as a pdf
 
-		# he is invited to enter his own name and address
-		vendors_name = self.browser.find_element_by_id('new_vendors_name_input')
-		vendors_name.send_keys('Francis')
-
-		vendors_address = self.browser.find_element_by_id('new_vendors_address_input')
-		vendors_address.send_keys('123 francis street, france')
-
-		# he is invited to add a tax type and rate
-		tax_type = self.browser.find_element_by_id('new_tax_type_input')
-		tax_type.send_keys('AST')
-
-		tax_rate = self.browser.find_element_by_id('new_tax_rate_input')
-		tax_rate.send_keys('25')
-		
-		# he then enter currency details
-		currency_symbol = self.browser.find_element_by_id('new_currency_symbol_input')
-		currency_symbol.send_keys('$')
-		currency_name = self.browser.find_element_by_id('new_currency_name_input')
-		currency_name.send_keys('CAD')
-
-		# he enters a new line item
-		line_item_input = self.browser.find_element_by_id('new_line_item_input')
-		line_item_input.send_keys('Francis Item #1')
-		line_item_description_input = self.browser.find_element_by_id('new_line_item_description_input')
-		line_item_description_input.send_keys('Description for Francis Item #2')
-		line_item_quantity_input = self.browser.find_element_by_id('new_line_item_quantity_input')
-		line_item_quantity_input.send_keys('1')
-
-		line_item_price_input = self.browser.find_element_by_id('new_line_item_price_input')
-		line_item_price_input.send_keys('10')
-
-		line_item_price_input.send_keys(Keys.ENTER)
-
-		# Francis gets his own unique URL
-		francis_invoice_url = self.browser.current_url
-		self.assertRegex(francis_invoice_url, '/invoices/.+')
-		self.assertNotEqual(francis_invoice_url, jolby_invoice_url)
-
-		# again, no trace of Jolby's invoice
-		page_text = self.browser.find_element_by_tag_name('body').text
-		self.assertNotIn('Jolby', page_text)
-		self.assertNotIn('Line 1: Item #1', page_text)
-		self.assertIn('Line 1: Francis Item #1', page_text)
-
-		# he notices that some fields on the invoice are incorrect and so edits them
-		tax_type = self.browser.find_element_by_id('new_tax_type_input')
-		tax_type.send_keys('TAX')
-		currency_name = self.browser.find_element_by_id('new_currency_name_input')
-		currency_name.send_keys('USD')
-
-		self.browser.find_element_by_tag_name("button").click()
-
-		# when page refreshes he notices that these fields have been updated
-		tax_type = self.browser.find_element_by_id('new_tax_type_input')
-		tax_type_value = tax_type.get_attribute('value')
-		currency_value = self.browser.find_element_by_id('new_currency_name_input').get_attribute('value')
-		self.assertIn('TAX', tax_type_value)
-		self.assertIn('USD', currency_value)
-		
-		# he notices that after each line item is added the net, tax and total 
-		# payable amounts increase by the correct amount
-		net_total = self.browser.find_element_by_id('net_total').text
-		self.assertIn('10', net_total)
-
-		tax_value = self.browser.find_element_by_id('tax_amount').text
-		self.assertIn('2.50', tax_value)
-
-		total_payable = self.browser.find_element_by_id('total_payable').text
-		self.assertIn('12.50', total_payable)
-
-		# he realises that he put 25% for tax instead of 20%. He corrects that
-		tax_rate = self.browser.find_element_by_id('new_tax_rate_input')
-		tax_rate.clear()
-		tax_rate.send_keys('20\n')
-		
-		# after hitting enter he sees the value has remained 20% in the input box
-		tax_rate = self.browser.find_element_by_id('new_tax_rate_input')
-		self.assertEqual(tax_rate.get_attribute('value'), '20')
-
-		# and that the tax amount and total payable have been updated
-		tax_value = self.browser.find_element_by_id('tax_amount').text
-		self.assertEqual(tax_value, 'Tax: $2.00')
-
-		total_payable = self.browser.find_element_by_id('total_payable').text
-		self.assertEqual(total_payable, 'Total Payable: $12.00')
-		# he notices that he can click a button to save the invoice as a pdf 
-
-
-		# he notices that he can enter the customer's email address and send the 
-		# invoice directly to them.
+		# he notices that he can send the invoice directly to the 
+		# customer using address provided earlier
