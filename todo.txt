@@ -1,15 +1,5 @@
-create a coverage config file and exclude all 3rd party code
+Finish validation FT
 
-Unit tests need refactoring. test_views is still pretty long.
+Unit tests
 
-when some data has been entered for a line item but not all name, quantity, price are included send back an error message and repopulate inputs. right now incomplete line items are discarded with no feedback to the user. -- Going to do client side form validation with javascript.
-
-form validation should be performed and also include checks that where expecting number values those are submitted. 
-
-make form look more like an invoice. inputs that expect numbers should be of type number to help mobile users.
-
-Functionality to add: 
-delete line items, 
-add users and protect their invoices from public, 
-export as pdf
-
+Class based forms

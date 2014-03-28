@@ -1,59 +1,78 @@
+from decimal import *
 from django.db import models
 from decimal import Decimal
 
 
 class Invoice(models.Model):
-	invoice_number = models.TextField()
-	invoiced_customer_name = models.TextField()
-	invoiced_customer_address = models.TextField()
-	vendors_name = models.TextField()
-	vendors_address = models.TextField()
-	net_amount = models.TextField()
-	tax_type = models.TextField()
-	tax_rate = models.TextField(default='0')
-	tax_amount = models.TextField()
-	total_payable = models.TextField()
+	invoice_number = models.CharField(max_length=32)
+	invoice_date = models.DateField()
+	invoice_comment = models.TextField()
 
-	def save(self, run=False, *args, **kwargs):
-		self.full_clean(exclude=['net_amount', 'tax_amount', 'total_payable'])
-		super().save(*args, **kwargs)
-		if not run:
-			update_totals(self)
+	def get_net_total(self):
+		line_items = Line_item.objects.select_related().filter(invoice=self)
+		return sum([
+			item.line_item_price * item.line_item_quantity for item in line_items
+		])
 
+	def get_tax_total(self):
+		taxes = Tax.objects.filter(invoice=self)
+		final_tax_rate = sum([
+			tax.tax_rate for tax in taxes
+		])
+		return self.get_net_total() * final_tax_rate / 100	
+
+	def get_total_payable(self):
+		return self.get_net_total() + self.get_tax_total()	
+
+	def delete(self, *args, **kwargs):
+		Line_item.objects.filter(invoice=self).delete()
+		Tax.objects.filter(invoice=self).delete()
+		Currency.objects.filter(invoice=self).delete()
+		Customer.objects.filter(invoice=self).delete()
+		super().delete(*args, **kwargs)
 
 class Line_item(models.Model):
-	line_item = models.TextField()
+	line_item = models.CharField(max_length=128)
 	line_item_description = models.TextField()
-	line_item_price = models.TextField()
-	line_item_quantity = models.TextField()
+	line_item_price = models.DecimalField(max_digits=16, decimal_places=2)
+	line_item_quantity = models.IntegerField()
 	invoice = models.ForeignKey(Invoice)
-	line_item_total = models.TextField()
 
-	def save(self, *args, **kwargs):
-		if self.line_item is False or self.line_item == '':
-			return
-		if self.line_item_price is False or self.line_item_price == '':
-			return
-		if self.line_item_quantity is False or self.line_item_quantity == '':
-			return
-		self.line_item_total = "{:.2f}".format(float(self.line_item_price) * float(self.line_item_quantity))
-		super().save(*args, **kwargs)
-		update_totals(self.invoice)
+	def get_line_item_total(self):
+		return self.line_item_price * self.line_item_quantity
 	
 
 class Currency(models.Model):
-	currency_symbol = models.TextField()
-	currency_name = models.TextField()
+	currency_symbol = models.CharField(max_length=8)
+	currency_name = models.CharField(max_length=32)
 	invoice = models.ForeignKey(Invoice)
 
 
-def update_totals(self=Invoice):
-	net_amount, tax_amount, total_payable = (0, 0, 0)
-	for item in Line_item.objects.filter(invoice=self):
-		net_amount += float(item.line_item_total)
-	tax_rate = float(self.tax_rate)/100
-	self.tax_amount = "{:.2f}".format(tax_rate * net_amount)
-	self.total_payable = "{:.2f}".format(net_amount + (net_amount * tax_rate))
-	self.net_amount = "{:.2f}".format(net_amount)
-	self.save(run=True)
+class Vendor(models.Model):
+	vendor_name = models.CharField(max_length=32)
+	vendor_street_address = models.CharField(max_length=80)
+	vendor_city = models.CharField(max_length=32)
+	vendor_state = models.CharField(max_length=32)
+	vendor_post_code = models.CharField(max_length=16)
+	vendor_phone_number = models.CharField(max_length=24)
+	vendor_email_address = models.EmailField(max_length=128)
+	invoice = models.ForeignKey(Invoice, blank=True, null=True)
+
+
+class Customer(models.Model):
+	customer_name = models.CharField(max_length=32)
+	customer_street_address = models.CharField(max_length=80)
+	customer_city = models.CharField(max_length=32)
+	customer_state = models.CharField(max_length=32)
+	customer_post_code = models.CharField(max_length=16)
+	customer_phone_number = models.CharField(max_length=24)
+	customer_email_address = models.EmailField(max_length=128)
+	invoice = models.ForeignKey(Invoice, blank=True, null=True)
+
+
+class Tax(models.Model):
+	tax_name = models.CharField(max_length=32)
+	tax_rate = models.DecimalField(max_digits=5, decimal_places=2)
+	invoice = models.ForeignKey(Invoice)
+
 

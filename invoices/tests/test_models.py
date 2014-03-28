@@ -1,170 +1,260 @@
-from django.core.urlresolvers import resolve
+import time
+import datetime
 from django.test import TestCase
-from django.http import HttpRequest
-from django.template.loader import render_to_string
 from django.core.exceptions import ValidationError
 from unittest import skip
 
-from invoices.views import home_page
-from invoices.models import Invoice, Line_item, Currency
-from .util import create_new_invoice, create_new_line_item, create_POST_data
+from invoices.models import Invoice, Line_item, Currency, Vendor, Customer, Tax
+from .utils import create_new_invoice, create_new_line_item, create_new_vendor, create_new_customer, create_new_tax, create_new_currency
 
 
-class CreatingAndRetrievingModels(TestCase):
+class CreateAndRetrieveModelObjects(TestCase):
 
-	def test_saving_and_retrieving_line_items(self):
-		invoice_ = create_new_invoice()
-		invoice_.save()
-		first_line_item = Line_item()
-		first_line_item.line_item = 'Item #1'
-		first_line_item.line_item_description = 'Description of Item #1'
-		first_line_item.line_item_quantity = '2'
-		first_line_item.line_item_price = '100'
-		first_line_item.invoice = invoice_
-		first_line_item.save()
-
-		second_line_item = Line_item()
-		second_line_item.line_item = 'Item #2'
-		second_line_item.line_item_description = 'Description of Item #2'
-		second_line_item.line_item_quantity = '1'
-		second_line_item.line_item_price = '10'
-		second_line_item.invoice = invoice_
-		second_line_item.save()
-
+	def test_creating_invoice(self):
+		new_invoice = create_new_invoice()
 		saved_invoice = Invoice.objects.first()
-		self.assertEqual(saved_invoice, invoice_)
-
-		saved_line_items = Line_item.objects.all()
-		self.assertEqual(saved_line_items.count(), 2)
-
-		first_saved_line_item = saved_line_items[0]
-		second_saved_line_item = saved_line_items[1]
-		self.assertEqual(first_saved_line_item.line_item, 'Item #1')
-		self.assertEqual(first_saved_line_item.invoice, invoice_)
-		self.assertEqual(second_saved_line_item.line_item, 'Item #2')
-		self.assertIn('10', second_saved_line_item.line_item_price)
-		self.assertEqual(second_saved_line_item.line_item_quantity, '1')
-		self.assertEqual(second_saved_line_item.line_item_description, 'Description of Item #2')
-		self.assertEqual(second_saved_line_item.invoice, invoice_)
-
-	def test_line_items_dont_save_without_name_quantity_and_price(self):
+		self.assertEqual(new_invoice.id, saved_invoice.id)
+		
+	def test_creating_currency(self):
 		invoice_ = create_new_invoice()
-		first_line_item = Line_item(
-			line_item='Item 1',
-			line_item_description='Description 1',
-			invoice=invoice_
-		)
-
-		saved_line_items = Line_item.objects.all()
-		self.assertEqual(saved_line_items.count(), 0)
-
-	def test_saving_and_retrieving_invoices(self):
-		first_invoice = Invoice()
-		first_invoice.invoice_number = '1234'
-		first_invoice.invoiced_customer_name = 'C Name'
-		first_invoice.invoiced_customer_address = '123 customer address'
-		first_invoice.vendors_name = 'V Name'
-		first_invoice.vendors_address = '123 vendors address'
-		first_invoice.tax_type = 'TST'
-		first_invoice.tax_rate = '15'
-		first_invoice.save()
-
-		second_invoice = Invoice()
-		second_invoice.invoice_number = '4321'
-		second_invoice.invoiced_customer_name = 'Another C Name'
-		second_invoice.invoiced_customer_address = 'Another 123 customer address'
-		second_invoice.vendors_name = 'Another V Name'
-		second_invoice.vendors_address = 'Another 123 vendors address'
-		second_invoice.tax_type = 'TST'
-		second_invoice.tax_rate = '15'
-		second_invoice.save()
-
-		saved_invoice = Invoice.objects.first()
-		self.assertEqual(saved_invoice, first_invoice)
-
-		saved_invoices = Invoice.objects.all()
-		self.assertEqual(saved_invoices.count(), 2)
-
-		first_saved_invoice = saved_invoices[0]
-		second_saved_invoice = saved_invoices[1]
-		self.assertEqual(first_saved_invoice.invoice_number, '1234')
-		self.assertEqual(first_saved_invoice.invoiced_customer_name, 'C Name')
-		self.assertEqual(first_saved_invoice.invoiced_customer_address, '123 customer address')
-		self.assertEqual(first_saved_invoice.vendors_name, 'V Name')
-		self.assertEqual(first_saved_invoice.vendors_address, '123 vendors address')
-		self.assertEqual(first_saved_invoice.tax_type, 'TST')
-		self.assertEqual(first_saved_invoice.tax_rate, '15')
-		self.assertEqual(second_saved_invoice.invoice_number, '4321')
-		self.assertEqual(second_saved_invoice.invoiced_customer_name, 'Another C Name')
-
-
-class UpdatingModels(TestCase):
+		new_currency = create_new_currency(invoice=invoice_)
+		saved_currency = Currency.objects.first()
+		self.assertEqual(new_currency, saved_currency)
+		
+	def test_creating_tax(self):
+		invoice_ = create_new_invoice()
+		new_tax = create_new_tax(invoice=invoice_)
+		saved_tax = Tax.objects.first()
+		self.assertEqual(new_tax, saved_tax)
+		
+	def test_creating_vendor(self):
+		new_vendor = create_new_vendor()
+		saved_vendor = Vendor.objects.first()
+		self.assertEqual(new_vendor, saved_vendor)
+		
+	def test_creating_customer(self):
+		new_customer = create_new_customer()
+		saved_customer = Customer.objects.first()
+		self.assertEqual(new_customer, saved_customer)
+		
+	def test_creating_line_item(self):
+		invoice_ = create_new_invoice()
+		new_line_item = create_new_line_item(invoice=invoice_)
+		saved_line_item = Line_item.objects.first()
+		self.assertEqual(new_line_item, saved_line_item)
+		
+		
+class UpdateModelObjects(TestCase):
 	
-	def test_invoice_fields_can_be_overwritten(self):
-		invoice_ = Invoice.objects.create(
-			invoice_number=1234,
-			invoiced_customer_name='name',
-			invoiced_customer_address='address',
-			vendors_name='vname',
-			vendors_address='vaddress',
-			tax_type='TST',
-			tax_rate='25'
-		)
-
+	def test_updating_invoice(self):
+		new_invoice = create_new_invoice()
+		saved_invoice = Invoice.objects.first()
+		saved_invoice.invoice_number = '5555'
+		saved_invoice.invoice_date = datetime.date(2014, 1, 1)
+		saved_invoice.invoice_comment = 'New comment'
+		saved_invoice.save()
 		self.assertEqual(Invoice.objects.count(), 1)
-		self.assertEqual(Invoice.objects.first(), invoice_)
-
 		updated_invoice = Invoice.objects.first()
-		updated_invoice.tax_type = 'TAX'
-		updated_invoice.vendor_name = 'new name'
-		updated_invoice.save()
-
-		self.assertEqual(Invoice.objects.first(), updated_invoice)
-		edited_invoice = Invoice.objects.first()
-		self.assertEqual(edited_invoice.tax_type, 'TAX')
-		self.assertEqual(edited_invoice.vendors_name, updated_invoice.vendors_name)
-
-	def test_currency_fields_can_be_overwritten(self):
-		invoice_ = create_new_invoice()
-		currency_ = Currency.objects.create(
-			currency_symbol='$',
-			currency_name='CAD',
-			invoice=invoice_
-		)
-
-		self.assertEqual(Currency.objects.count(), 1)
-		self.assertEqual(Currency.objects.first(), currency_)
+		self.assertEqual(updated_invoice.invoice_number, '5555')
+		self.assertEqual(updated_invoice.invoice_date, datetime.date(2014, 1, 1))
+		self.assertEqual(updated_invoice.invoice_comment, 'New comment')
 		
-		update_currency = Currency.objects.first()
-		update_currency.currency_name = 'TST'
-		update_currency.save()
-
-		edited_currency = Currency.objects.first()
-
-		self.assertEqual(Currency.objects.count(), 1)
-		self.assertEqual(edited_currency.invoice, invoice_)
-		self.assertEqual(edited_currency.currency_name, 'TST')
-
-	def test_net_and_tax_are_correctly_calculated(self):
+	def test_updating_currency(self):
 		invoice_ = create_new_invoice()
-
-		first_line_item = create_new_line_item(invoice_=invoice_, num=1)
-		temp_invoice = Invoice.objects.first()
-		self.assertEqual(temp_invoice.net_amount, '100.00')
-		self.assertEqual(temp_invoice.tax_amount, '15.00')
-		self.assertEqual(temp_invoice.total_payable, '115.00')
-
-		second_line_item = create_new_line_item(invoice_=invoice_, num=2)
-
-		temp_invoice = Invoice.objects.first()
-		self.assertEqual(temp_invoice.tax_amount, '75.00')
-		self.assertEqual(temp_invoice.total_payable, '575.00')
-		self.assertEqual(temp_invoice.net_amount, '500.00')
-
-class ModelValidation(TestCase):
+		new_currency = create_new_currency(invoice=invoice_)
+		saved_currency = Currency.objects.first()
+		saved_currency.currency_name = 'CAD'
+		saved_currency.currency_symbol = '&'
+		saved_currency.save()
+		self.assertEqual(Currency.objects.count(), 1)
+		updated_currency = Currency.objects.first()
+		self.assertEqual(updated_currency.currency_name, 'CAD')
+		self.assertEqual(updated_currency.currency_symbol, '&')
+		
+	def test_updating_tax(self):
+		invoice_ = create_new_invoice()
+		new_tax = create_new_tax(invoice=invoice_)
+		saved_tax = Tax.objects.first()
+		saved_tax.tax_rate = 25
+		saved_tax.tax_name = 'HST'
+		saved_tax.save()
+		self.assertEqual(Tax.objects.count(), 1)
+		updated_tax = Tax.objects.first()
+		self.assertEqual(updated_tax.tax_rate, 25)
+		self.assertEqual(updated_tax.tax_name, 'HST')
+		
+	def test_updating_vendor(self):
+		new_vendor = create_new_vendor()
+		saved_vendor = Vendor.objects.first()
+		saved_vendor.vendor_name = 'New name'
+		saved_vendor.vendor_street_address = 'New street address'
+		saved_vendor.vendor_city = 'New City'
+		saved_vendor.vendor_state = 'NS'
+		saved_vendor.vendor_post_code = 'New code'
+		saved_vendor.vendor_phone_number = '555 555 5555'
+		saved_vendor.vendor_email_address = 'new@email.com'
+		saved_vendor.save()
+		self.assertEqual(Vendor.objects.count(), 1)
+		updated_vendor = Vendor.objects.first()
+		self.assertEqual(updated_vendor.vendor_name, 'New name')
+		self.assertEqual(updated_vendor.vendor_street_address, 'New street address')
+		self.assertEqual(updated_vendor.vendor_city, 'New City')
+		self.assertEqual(updated_vendor.vendor_state, 'NS')
+		self.assertEqual(updated_vendor.vendor_post_code, 'New code')
+		self.assertEqual(updated_vendor.vendor_phone_number, '555 555 5555')
+		self.assertEqual(updated_vendor.vendor_email_address, 'new@email.com')
+		
+	def test_updating_customer(self):
+		new_customer = create_new_customer()
+		saved_customer = Customer.objects.first()
+		saved_customer.customer_name = 'New name'
+		saved_customer.customer_street_address = 'New street address'
+		saved_customer.customer_city = 'New City'
+		saved_customer.customer_state = 'NS'
+		saved_customer.customer_post_code = 'New code'
+		saved_customer.customer_phone_number = '555 555 5555'
+		saved_customer.customer_email_address = 'new@email.com'
+		saved_customer.save()
+		self.assertEqual(Customer.objects.count(), 1)
+		updated_customer = Customer.objects.first()
+		self.assertEqual(updated_customer.customer_name, 'New name')
+		self.assertEqual(updated_customer.customer_street_address, 'New street address')
+		self.assertEqual(updated_customer.customer_city, 'New City')
+		self.assertEqual(updated_customer.customer_state, 'NS')
+		self.assertEqual(updated_customer.customer_post_code, 'New code')
+		self.assertEqual(updated_customer.customer_phone_number, '555 555 5555')
+		self.assertEqual(updated_customer.customer_email_address, 'new@email.com')
+		
+	def test_updating_line_item(self):
+		invoice_ = create_new_invoice()
+		new_line_item = create_new_line_item(invoice=invoice_)
+		saved_line_item = Line_item.objects.first()
+		saved_line_item.line_item = 'New item'
+		saved_line_item.line_item_description = 'Description of line item'
+		saved_line_item.line_item_price = 300
+		saved_line_item.line_item_quantity = 10
+		saved_line_item.save()
+		self.assertEqual(Line_item.objects.count(), 1)
+		updated_line_item = Line_item.objects.first()
+		self.assertEqual(updated_line_item.line_item, 'New item')
+		self.assertEqual(updated_line_item.line_item_description, 'Description of line item')
+		self.assertEqual(updated_line_item.line_item_price, 300)
+		self.assertEqual(updated_line_item.line_item_quantity, 10)
+		
+	def test_invoice_can_have_multiple_taxes(self):
+		invoice_ = create_new_invoice()
+		first_new_tax = create_new_tax(invoice=invoice_)
+		second_new_tax = create_new_tax(invoice=invoice_)
+		self.assertEqual(Tax.objects.filter(invoice=invoice_).count(), 2)
+		self.assertNotEqual(first_new_tax, second_new_tax)
+		
+	def test_invoice_can_have_multiple_line_items(self):
+		invoice_ = create_new_invoice()
+		first_new_line_item = create_new_line_item(invoice=invoice_)
+		second_new_line_item = create_new_line_item(invoice=invoice_)
+		self.assertEqual(Line_item.objects.filter(invoice=invoice_).count(), 2)
+		self.assertNotEqual(first_new_line_item, second_new_line_item)
+		
 	
-	def test_cant_add_empty_invoice(self):
-		invoice_ = Invoice()
-		with self.assertRaises(ValidationError):
-			invoice_.save()
+class DeleteModelObjects(TestCase):
+
+	def test_delete_invoice(self):
+		''' If an invoice is deleted all associated currency, tax, customer 
+		    and line item objects should be deleted
+		     as well or they'll become orphans '''
+		invoice_ = create_new_invoice()
+		new_currency = create_new_currency(invoice=invoice_)
+		first_new_tax = create_new_tax(invoice=invoice_)
+		new_line_item = create_new_line_item(invoice=invoice_)
+		new_customer = create_new_customer()
+		new_customer.invoice = invoice_
+		new_customer.save()
+		invoice_.delete()
+		self.assertEqual(Currency.objects.count(), 0)
+		self.assertEqual(Tax.objects.count(), 0)
+		self.assertEqual(Line_item.objects.count(), 0)
+		self.assertEqual(Customer.objects.count(), 0)
 		
+	def test_delete_currency(self):
+		invoice_ = create_new_invoice()
+		new_currency = create_new_currency(invoice=invoice_)
+		Currency.objects.filter(invoice=invoice_).delete()
+		self.assertEqual(Currency.objects.count(), 0)
+		
+	def test_delete_all_taxes_for_an_invoice(self):
+		invoice_ = create_new_invoice()
+		first_tax = create_new_tax(invoice=invoice_)
+		second_tax = create_new_tax(invoice=invoice_)
+		Tax.objects.filter(invoice=invoice_).delete()
+		self.assertEqual(Tax.objects.count(), 0)
+		
+	def test_delete_individual_tax(self):
+		invoice_ = create_new_invoice()
+		first_tax = create_new_tax(invoice=invoice_)
+		second_tax = create_new_tax(invoice=invoice_)
+		Tax.objects.filter(id=first_tax.id).delete()
+		self.assertEqual(Tax.objects.filter(invoice=invoice_).count(), 1)
+		
+	def test_delete_vendor(self):
+		invoice_ = create_new_invoice()
+		new_vendor = create_new_vendor()
+		new_vendor.invoice = invoice_
+		new_vendor.save()
+		Vendor.objects.filter(invoice=invoice_).delete()
+		self.assertEqual(Vendor.objects.count(), 0)
+		
+	def test_delete_customer(self):
+		invoice_ = create_new_invoice()
+		new_customer = create_new_customer()
+		new_customer.invoice = invoice_
+		new_customer.save()
+		Customer.objects.filter(invoice=invoice_).delete()
+		self.assertEqual(Customer.objects.count(), 0)
+		
+	def test_delete_all_line_items_for_an_invoice(self):
+		invoice_ = create_new_invoice()
+		first_line_item = create_new_line_item(invoice=invoice_)
+		second_line_item = create_new_line_item(invoice=invoice_)
+		Line_item.objects.filter(invoice=invoice_).delete()
+		self.assertEqual(Line_item.objects.count(), 0)
+		
+	def test_delete_individual_line_item(self):
+		invoice_ = create_new_invoice()
+		first_line_item = create_new_line_item(invoice=invoice_)
+		second_line_item = create_new_line_item(invoice=invoice_)
+		Line_item.objects.filter(id=first_line_item.id).delete()
+		self.assertEqual(Line_item.objects.count(), 1)
+	
+
+class CalculatingTaxAndTotalsInTheModel(TestCase):
+
+	def test_line_item_totals_are_calculated_correctly(self):
+		invoice_ = create_new_invoice()
+		new_line_item = create_new_line_item(invoice=invoice_)
+		self.assertEqual(new_line_item.get_line_item_total(), 100)
+		
+	def test_net_total_for_an_invoice_is_calculated_correctly(self):
+		invoice_ = create_new_invoice()
+		first_line_item = create_new_line_item(invoice=invoice_)
+		second_line_item = create_new_line_item(invoice=invoice_)
+		self.assertEqual(invoice_.get_net_total(), 200)
+		
+	def test_tax_is_correctly_calculated(self):
+		invoice_ = create_new_invoice()
+		tax = create_new_tax(invoice=invoice_)
+		new_line_item = create_new_line_item(invoice=invoice_)
+		self.assertEqual(invoice_.get_tax_total(), 15)
+		
+	def test_total_payable_is_calculated_correctly(self):
+		invoice_ = create_new_invoice()
+		first_tax = create_new_tax(invoice=invoice_)
+		second_tax = create_new_tax(invoice=invoice_)
+		first_line_item = create_new_line_item(invoice=invoice_)
+		second_line_item = create_new_line_item(invoice=invoice_)
+		self.assertEqual(invoice_.get_total_payable(), 260)
+		
+
+
+
+
+
