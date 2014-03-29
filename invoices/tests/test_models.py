@@ -253,8 +253,3 @@ class CalculatingTaxAndTotalsInTheModel(TestCase):
 		second_line_item = create_new_line_item(invoice=invoice_)
 		self.assertEqual(invoice_.get_total_payable(), 260)
 		
-
-
-
-
-

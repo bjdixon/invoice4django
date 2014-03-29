@@ -1,5 +1,5 @@
 Finish validation FT
 
-Unit tests
+Unit tests for views and forms
 
 Class based forms

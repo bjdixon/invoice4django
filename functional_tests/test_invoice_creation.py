@@ -20,6 +20,17 @@ class NewVisitorTest(FunctionalTest):
 		invoice_number = self.browser.find_element_by_id('invoice_number_input')
 		invoice_number.send_keys('1234')
 
+		# he is prompted to enter tax and currency details
+		currency_name = self.browser.find_element_by_id('currency_name_input')
+		currency_name.send_keys('USD')
+		currency_symbol = self.browser.find_elements_by_id('currency_symbol_input')
+		currency_symbol.send_keys('$')
+
+		tax_name = self.browser.find_element_by_id('tax_name_input')
+		tax_name.send_keys('TST')
+		tax_rate = self.browser.find_element_by_id('tax_rate_input')
+		tax_rate.send_keys('15')
+
 		# and any comments (like payment details or terms)
 		invoice_comments = self.browser.find_element_by_id('invoice_comments_input')
 		invoice_comments.send_keys('Please pay cash money within 30 days')
