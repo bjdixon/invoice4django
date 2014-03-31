@@ -6,6 +6,10 @@ from django.template.loader import render_to_string
 from django.utils.html import escape
 from .utils import *
 
+from invoices.views import *
+from invoices.models import *
+from invoices.forms import *
+
 
 class HomePageTest(TestCase):
 
@@ -16,7 +20,11 @@ class HomePageTest(TestCase):
 	def test_home_page_returns_correct_html(self):
 		request = HttpRequest()
 		response = home_page(request)
-		expected_html = render_to_string('home.html')
+		expected_html = render_to_string('home.html', {
+			'invoice_form': InvoiceForm(),
+			'currency_form': CurrencyForm(),
+			'tax_form': TaxForm(),
+		})
 		self.assertEqual(response.content.decode(), expected_html)
 	
 	def test_home_page_renders_home_template(self):
@@ -27,28 +35,47 @@ class HomePageTest(TestCase):
 class VendorPageTest(TestCase):
 
 	def test_add_vendor_page_returns_correct_html(self):
-		pass
+		invoice_ = create_new_invoice()
+		request = HttpRequest()
+		response = vendor_page(request, invoice=invoice_)
+		expected_html = render_to_string('vendor.html', {'form': VendorForm()})
+		print(expected_html)
+		self.assertMultiLineEqual(response.content.decode(), expected_html)
 
 	def test_add_vendor_page_renders_vendor_template(self):
-		pass
+		invoice_ = create_new_invoice()
+		response = self.client.get('/invoices/%d/vendor/' % (invoice_.id))
+		self.assertTemplateUsed(response, 'vendor.html')
 
 
 class CustomerPageTest(TestCase):
 
 	def test_add_customer_page_returns_correct_html(self):
-		pass
+		invoice_ = create_new_invoice()
+		request = HttpRequest()
+		response = customer_page(request, invoice=invoice_)
+		expected_html = render_to_string('customer.html', {'form': CustomerForm()})
+		self.assertMultiLineEqual(response.content.decode(), expected_html)
 
 	def test_add_customer_page_renders_customer_template(self):
-		pass
+		invoice_ = create_new_invoice()
+		response = self.client.get('/invoices/%d/customer/' % (invoice_.id))
+		self.assertTemplateUsed(response, 'customer.html')
 
 
 class LineItemPageTest(TestCase):
 
 	def test_line_item_page_returns_correct_html(self):
-		pass
+		invoice_ = create_new_invoice()
+		request = HttpRequest()
+		response = line_item_page(request, invoice=invoice_)
+		expected_html = render_to_string('line_item.html', {'form': LineItemForm()})
+		self.assertMultiLineEqual(response.content.decode(), expected_html)
 
 	def test_line_item_page_renders_line_item_template(self):
-		pass
+		invoice_ = create_new_invoice()
+		response = self.client.get('/invoices/%d/line_item/' % (invoice_.id))
+		self.assertTemplateUsed(response, 'line_item.html')
 
 	def test_correct_invoice_is_being_passed_to_template(self):
 		pass
