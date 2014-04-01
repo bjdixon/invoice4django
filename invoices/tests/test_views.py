@@ -39,7 +39,6 @@ class VendorPageTest(TestCase):
 		request = HttpRequest()
 		response = vendor_page(request, invoice=invoice_)
 		expected_html = render_to_string('vendor.html', {'form': VendorForm()})
-		print(expected_html)
 		self.assertMultiLineEqual(response.content.decode(), expected_html)
 
 	def test_add_vendor_page_renders_vendor_template(self):

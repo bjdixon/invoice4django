@@ -7,7 +7,11 @@ from invoices.models import *
 
 # Create your views here.
 def home_page(request):
-	return render(request, 'home.html')
+	return render(request, 'home.html', {
+		'invoiceForm': InvoiceForm(),
+		'currencyForm': CurrencyForm(),
+		'taxForm': TaxForm(),
+	})
 
 def vendor_page(request, invoice):
 	form = VendorForm(data=request.POST)
@@ -15,7 +19,7 @@ def vendor_page(request, invoice):
 		form.save(invoice=invoice)
 		return redirect(invoice)
 	else:
-		return render(request, 'vendor.html')	
+		return render(request, 'vendor.html', {'form': form})	
 
 def customer_page(request, invoice):
 	return render(request, 'customer.html')	
