@@ -8,9 +8,9 @@ from invoices.models import *
 # Create your views here.
 def home_page(request):
 	return render(request, 'home.html', {
-		'invoiceForm': InvoiceForm(),
-		'currencyForm': CurrencyForm(),
-		'taxForm': TaxForm(),
+		'invoice_form': InvoiceForm(),
+		'currency_form': CurrencyForm(),
+		'tax_form': TaxForm(),
 	})
 
 def vendor_page(request, invoice):
