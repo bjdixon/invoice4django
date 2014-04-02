@@ -19,7 +19,7 @@ def vendor_page(request, invoice):
 		form.save(invoice=invoice)
 		return redirect(invoice)
 	else:
-		return render(request, 'vendor.html', {'form': form})	
+		return render(request, 'vendor.html', {'form': VendorForm()})	
 
 def customer_page(request, invoice):
 	return render(request, 'customer.html')	
