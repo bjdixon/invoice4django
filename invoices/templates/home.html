@@ -1,5 +1,5 @@
 <form method="POST" action="">
-	{% for field in invoiceForm %}
+	{% for field in invoice_form %}
 		{% if field.errors %}
 			<div class="form-group has-error">
 				<span class="help-block">{{ field.errors }}</span>
@@ -8,7 +8,7 @@
 		<p>{{ field }}</p>
 	{% endfor %}
 
-	{% for field in currencyForm %}
+	{% for field in currency_form %}
 		{% if field.errors %}
 			<div class="form-group has-error">
 				<span class="help-block">{{ field.errors }}</span>
@@ -17,7 +17,7 @@
 		<p>{{ field }}</p>
 	{% endfor %}
 	
-	{% for field in taxForm %}
+	{% for field in tax_form %}
 		{% if field.errors %}
 			<div class="form-group has-error">
 				<span class="help-block">{{ field.errors }}</span>
