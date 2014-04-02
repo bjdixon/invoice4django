@@ -1,21 +1,30 @@
 <form method="POST" action="">
-	{{ invoiceForm}}
-	{% if invoiceForm.errors %}
-	<div class="form-group has-error">
-		<span class="help-block">{{ invoiceForm.errors }}</span>
-	</div>
-	{% endif %}
-	{{ currencyForm}}
-	{% if currencyForm.errors %}
-	<div class="form-group has-error">
-		<span class="help-block">{{ currencyForm.errors }}</span>
-	</div>
-	{% endif %}
-	{{ taxForm}}
-	{% if taxForm.errors %}
-	<div class="form-group has-error">
-		<span class="help-block">{{ taxForm.errors }}</span>
-	</div>
-	{% endif %}
+	{% for field in invoiceForm %}
+		{% if field.errors %}
+			<div class="form-group has-error">
+				<span class="help-block">{{ field.errors }}</span>
+			</div>
+		{% endif %}
+		<p>{{ field }}</p>
+	{% endfor %}
+
+	{% for field in currencyForm %}
+		{% if field.errors %}
+			<div class="form-group has-error">
+				<span class="help-block">{{ field.errors }}</span>
+			</div>
+		{% endif %}
+		<p>{{ field }}</p>
+	{% endfor %}
+	
+	{% for field in taxForm %}
+		{% if field.errors %}
+			<div class="form-group has-error">
+				<span class="help-block">{{ field.errors }}</span>
+			</div>
+		{% endif %}
+		<p>{{ field }}</p>
+	{% endfor %}
+	
 	{% csrf_token %}
 </form>
