@@ -35,6 +35,7 @@ class HomePageTest(TestCase):
 class VendorPageTest(TestCase):
 
 	def test_add_vendor_page_returns_correct_html(self):
+		self.maxDiff = None
 		invoice_ = create_new_invoice()
 		request = HttpRequest()
 		response = vendor_page(request, invoice=invoice_)
