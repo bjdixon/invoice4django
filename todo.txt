@@ -1,4 +1,6 @@
+Unit test for views: need to finish form validation tests
+
 Finish validation FT
 
-Unit tests for views
+formatting output and what if people click the back button edit the forms and re-submit?
 
