@@ -1,8 +1,15 @@
-<form method="POST" action="">
+{% extends 'base.html' %}
+{% block page_title %}Invoices{% endblock %}
+{% block body_content %}
+	<form method="POST" action="">
 	{% for field in invoice_form %}
 		{% if field.errors %}
 			<div class="form-group has-error">
-				<span class="help-block">{{ field.errors }}</span>
+				<span class="help-block">
+					{% for error in field.errors %}
+						{{ error }}
+					{% endfor %}	
+				</span>
 			</div>
 		{% endif %}
 		<p>{{ field }}</p>
@@ -27,4 +34,6 @@
 	{% endfor %}
 	
 	{% csrf_token %}
+	<button>Submit</button>
 </form>
+{% endblock %}

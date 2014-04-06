@@ -22,23 +22,25 @@ class InvoiceForm(forms.models.ModelForm):
 		model = Invoice
 		fields = ('invoice_number', 'invoice_date', 'invoice_comment')
 		widgets = {
-				'invoice_number': forms.fields.TextInput(attrs={
-					'placeholder': 'Enter an invoice number',
-					'class': 'form-control input-lg',
-				}),
-				'invoice_date': forms.fields.DateInput(attrs={
-					'placeholder': 'Enter date',
-					'class': 'form-control input-lg',
-				}),
-				'invoice_comment': forms.fields.TextInput(attrs={
-					'placeholder': 'Enter any comments, like terms and conditions',
-					'class': 'form-control input-lg',
-				}),
+			'invoice_number': forms.fields.TextInput(attrs={
+				'placeholder': 'Enter an invoice number',
+				'class': 'form-control input-lg',
+			}),
+			'invoice_date': forms.fields.DateInput(attrs={
+				'placeholder': 'Enter date',
+				'class': 'form-control input-lg',
+			}),
+			'invoice_comment': forms.fields.TextInput(attrs={
+				'placeholder': 'Enter any comments, like terms and conditions',
+				'class': 'form-control input-lg',
+			}),
+		}
+		error_messages = {
+			'invoice_number': {
+				'required': EMPTY_INVOICE_NUMBER_ERROR,
+			},
 		}
 
-		def __init__(self, *args, **kwargs):
-			super().__init__(*args, **kwargs)
-			self.fields['invoice_number'].error_messages['required'] = EMPTY_INVOICE_NUMBER_ERROR 
 
 
 class CurrencyForm(forms.models.ModelForm):

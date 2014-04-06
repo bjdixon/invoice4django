@@ -2,11 +2,15 @@
 {% block page_title %}Invoices{% endblock %}
 {% block body_content %}
 <form method="POST" action="">
-	{{ form }}
+	{% for field in form %}
+		{% if field.errors %}
+			<div class="form-group has-error">
+				<span class="help-block">{{ field.errors }}</span>
+			</div>
+		{% endif %}
+		<p>{{ field }}</p>
+	{% endfor %}
 	{% csrf_token %}
-	{% if form.errors %}
-	<div class="form-group has-error">
-		<span class="help-block">{{ form.errors }}</span>
-	</div>
-	{% endif %}
+	<button>Submit</button>
+</form>
 {% endblock %}

@@ -1,5 +1,75 @@
 {% extends 'base.html' %}
 {% block page_title %}Invoices{% endblock %}
 {% block body_content %}
-
+	<p id="invoice_details">
+		Invoice number: {{ invoice.invoice_number }}<br>
+		Date: {{ invoice.invoice_date }}<br>
+	</p>
+	<p id="vendor_details">
+		{{ vendor.vendor_name }}<br>
+		{{ vendor.vendor_street_address }}<br>
+		{{ vendor.vendor_city }}<br>
+		{{ vendor.vendor_state }}<br>
+		{{ vendor.vendor_post_code }}
+	</p>
+	<p id="customer_details">
+		{{ customer.customer_name }}<br>
+		{{ customer.customer_street_address }}<br>
+		{{ customer.customer_city }}<br>
+		{{ customer.customer_state }}<br>
+		{{ customer.customer_post_code }}
+	</p>
+	<table id="line_item_table">
+		<tr>
+			<th>Line Item</th>
+			<th>Description</th>
+			<th>Quantity</th>
+			<th>Price</th>
+			<th>Total</th>
+		</tr>
+		{% for line_item in line_items %}
+		<tr>
+			<td>{{ line_item.line_item }}</td>
+			<td>{{ line_item.line_item_description }}</td>
+			<td>{{ line_item.line_item_quantity }}</td>
+			<td>{{ currency.currency_symbol }}{{ line_item.line_item_price }}</td>
+			<td>{{ currency.currency_symbol }}{{ line_item.get_line_item_total }}</td>
+		</tr>
+		{% endfor %}
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td>Net</td>
+			<td>{{ currency.currency_symbol }}{{ invoice.get_net_total }}</td>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td>{{ tax.tax_name }}({{ tax.tax_rate }}%)</td>
+			<td>{{ currency.currency_symbol }}{{ invoice.get_tax_total }}</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td>{{ currency.currency_name }}</td>
+			<td>{{ currency.currency_symbol }}{{ invoice.get_total_payable }}</td>
+		</tr>
+	</table>
+	<p>
+		Comment: {{ invoice.invoice_comment }}
+	</p>
+	<form method="POST" action="">
+	{% for field in form %}
+		{% if field.errors %}
+			<div class="form-group has-error">
+				<span class="help-block">{{ field.errors }}</span>
+			</div>
+		{% endif %}
+		<p>{{ field }}</p>
+	{% endfor %}
+	{% csrf_token %}
+	<button>Submit</button>
+</form>
 {% endblock %}

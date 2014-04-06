@@ -60,3 +60,13 @@ def create_new_line_item(invoice, num=1):
 		invoice=invoice
 	)
 
+def create_related_invoice_models(invoice):
+	vendor_ = create_new_vendor()
+	vendor_.invoice = invoice
+	vendor_.save()
+	customer_ = create_new_customer()
+	customer_.invoice = invoice
+	customer_.save()
+	tax_ = create_new_tax(invoice)
+	currency_ = create_new_currency(invoice)
+	
