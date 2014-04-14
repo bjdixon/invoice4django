@@ -4,3 +4,7 @@ Finish validation FT
 
 formatting output and what if people click the back button edit the forms and re-submit?
 
+ability to remove line items
+
+ability to edit invoice, vendor and customer details
+
